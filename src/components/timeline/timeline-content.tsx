@@ -162,32 +162,32 @@ const PostsList = () => {
             )}
             
             {/* Engagement buttons */}
-            <div className="mt-3 flex items-center justify-between max-w-md">
-              <button className="flex items-center gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-2 transition-colors">
+            <div className="mt-3 grid grid-cols-6 sm:flex sm:items-center sm:justify-between max-w-md">
+              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-1 sm:p-2 transition-colors">
                 <MessageCircle className="h-4 w-4" />
-                <span>{p.comments}</span>
+                <span className="hidden sm:inline">{p.comments}</span>
               </button>
               
-              <button className="flex items-center gap-2 text-sm text-black/60 dark:text-white/60 hover:text-green-500 hover:bg-green-500/10 rounded-full p-2 transition-colors">
+              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-green-500 hover:bg-green-500/10 rounded-full p-1 sm:p-2 transition-colors">
                 <Repeat className="h-4 w-4" />
-                <span>{p.retweets}</span>
+                <span className="hidden sm:inline">{p.retweets}</span>
               </button>
               
-              <button className="flex items-center gap-2 text-sm text-black/60 dark:text-white/60 hover:text-pink-500 hover:bg-pink-500/10 rounded-full p-2 transition-colors">
+              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-pink-500 hover:bg-pink-500/10 rounded-full p-1 sm:p-2 transition-colors">
                 <Heart className="h-4 w-4" />
-                <span>{p.likes}</span>
+                <span className="hidden sm:inline">{p.likes}</span>
               </button>
               
-              <button className="flex items-center gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-2 transition-colors">
+              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-1 sm:p-2 transition-colors">
                 <BarChart3 className="h-4 w-4" />
-                <span>{p.insights >= 1000 ? `${(p.insights / 1000).toFixed(0)}K` : p.insights.toLocaleString()}</span>
+                <span className="hidden sm:inline">{p.insights >= 1000 ? `${(p.insights / 1000).toFixed(0)}K` : p.insights.toLocaleString()}</span>
               </button>
               
-              <button className="flex items-center gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-2 transition-colors">
+              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-1 sm:p-2 transition-colors">
                 <Bookmark className="h-4 w-4" />
               </button>
               
-              <button className="flex items-center gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-2 transition-colors">
+              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-1 sm:p-2 transition-colors">
                 <Share2 className="h-4 w-4" />
               </button>
             </div>
@@ -200,7 +200,7 @@ const PostsList = () => {
 
 export function TimelineContent() {
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 overflow-y-auto pb-[56px] lg:pb-0">
       <PostComposer />
       <div className="h-2 bg-black/[.03] dark:bg-white/[.04]" />
       <PostsList />

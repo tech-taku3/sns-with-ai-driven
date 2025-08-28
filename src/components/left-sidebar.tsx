@@ -6,7 +6,7 @@ import { Button } from "./ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { getGlobalProfileImage } from "./timeline";
 
-export function LeftSidebar() {
+export default function LeftSidebar() {
   const items = [
     { icon: Home, label: "Home", href: "/" },
     { icon: Search, label: "Explore", href: "/explore" },
@@ -48,7 +48,3 @@ export function LeftSidebar() {
     </aside>
   );
 }
-
-export default LeftSidebar;
-
-
