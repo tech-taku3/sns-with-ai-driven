@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { Home, Search, Bell, Mail, Rocket, Bookmark, Users, Briefcase, Star, Settings, User } from "lucide-react";
 import { Button } from "./ui/button";
-import { Avatar, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
+import { getGlobalProfileImage } from "./timeline";
 
 export function LeftSidebar() {
   const items = [
@@ -36,7 +37,8 @@ export function LeftSidebar() {
       </div>
       <Link href="/profile" className="flex items-center gap-3 rounded-full p-3 hover:bg-black/[.05] dark:hover:bg-white/[.08] transition">
         <Avatar>
-          <AvatarImage src="/vercel.svg" alt="me" />
+          <AvatarImage src={getGlobalProfileImage()} alt="me" />
+          <AvatarFallback>me</AvatarFallback>
         </Avatar>
         <div className="hidden xl:flex flex-col text-sm">
           <span className="font-semibold">tech_taku</span>
