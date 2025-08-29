@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  passwordHash    String    @map("password_hash")
+  username        String    @unique
+  displayName     String    @map("display_name")
+  bio             String?
+  profileImageUrl String?   @map("profile_image_url")
+  coverImageUrl   String?   @map("cover_image_url")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  // Core Relations
+  posts           Post[]    @relation("UserPosts")
+  likes           Like[]    @relation("UserLikes")
+  followers       Follow[]  @relation("following")
+  following       Follow[]  @relation("follower")
+
+  @@index([username])
+  @@map("users")
+}
+
+model Post {
+  id            String    @id @default(uuid())
+  content       String    @db.Text
+  userId        String    @map("user_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  isPublished   Boolean   @default(true) @map("is_published")
+  mediaUrl      String?   @map("media_url")
+
+  // Relations
+  author        User      @relation("UserPosts", fields: [userId], references: [id], onDelete: Cascade)
+  likes         Like[]    @relation("PostLikes")
+
+  // Indexes for common queries
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([isPublished, createdAt(sort: Desc)])
+
+  @@map("posts")
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  postId    String   @map("post_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user      User     @relation("UserLikes", fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation("PostLikes", fields: [postId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([userId])
+  @@index([postId])
+  @@unique([userId, postId])
+  @@map("likes")
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String   @map("follower_id")
+  followingId String   @map("following_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  follower    User     @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([followerId])
+  @@index([followingId])
+  @@unique([followerId, followingId])
+  @@map("follows")
+}
