@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 interface MobileNavProps extends React.HTMLAttributes<HTMLElement> {}
 
-export default function MobileNav({ className, ...props }: MobileNavProps) {
+export function MobileNav({ className, ...props }: MobileNavProps) {
   const pathname = usePathname();
   
   const items = [
@@ -20,7 +20,7 @@ export default function MobileNav({ className, ...props }: MobileNavProps) {
 
   return (
     <nav className={cn(
-      "fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-black/10 dark:border-white/10",
+      "z-50 bg-background border-t border-black/10 dark:border-white/10",
       className
     )} {...props}>
       <div className="flex justify-around items-center h-14">

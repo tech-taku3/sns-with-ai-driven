@@ -1,19 +1,19 @@
-import LeftSidebar from "../components/left-sidebar";
-import Timeline from "../components/timeline";
-import RightSidebar from "../components/right-sidebar";
-import MobileNav from "../components/mobile-nav";
+import { LeftSidebar } from "@/components/left-sidebar";
+import { Timeline } from "@/components/timeline";
+import { RightSidebar } from "@/components/right-sidebar";
+import { MobileNav } from "@/components/mobile-nav";
 
 export default function Home() {
   return (
-    <div className="mx-auto max-w-7xl w-full">
-      <div className="flex relative">
+    <div className="flex justify-center min-h-screen">
+      <div className="flex w-full lg:w-[1265px] mx-auto">
         <LeftSidebar />
-        <main className="flex-1 min-h-screen border-x border-black/10 dark:border-white/10 max-w-[600px] w-full mx-auto lg:mx-0">
+        <main className="flex-1 lg:flex-none lg:w-[600px] lg:min-w-[600px] border-x border-gray-200 dark:border-gray-800">
           <Timeline />
         </main>
         <RightSidebar />
       </div>
-      <MobileNav className="lg:hidden" />
+      <MobileNav className="fixed bottom-0 left-0 right-0 lg:hidden" />
     </div>
   );
 }

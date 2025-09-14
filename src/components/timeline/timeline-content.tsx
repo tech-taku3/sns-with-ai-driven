@@ -33,7 +33,7 @@ function CreatePost() {
           />
         </div>
         <div className="flex items-center justify-between">
-          <div className="flex gap-2 text-primary">
+          <div className="flex -ml-2">
             <button className="rounded-full p-2 hover:bg-primary/10">
               <ImageIcon className="h-5 w-5" />
             </button>
@@ -53,7 +53,7 @@ function CreatePost() {
               <MapPinIcon className="h-5 w-5" />
             </button>
           </div>
-          <Button size="sm" className="rounded-full px-4">
+          <Button size="sm" className="rounded-full px-4 bg-primary text-primary-foreground">
             Post
           </Button>
         </div>
@@ -64,16 +64,13 @@ function CreatePost() {
 
 export function TimelineContent() {
   return (
-    <main className="flex-1 border-x min-h-screen">
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur">
-        <div className="flex items-center justify-between p-4 border-b">
-          <h1 className="text-xl font-bold">Home</h1>
-        </div>
+    <main className="flex-1 border-x min-h-screen max-w-[600px]">
+      <div className="flex flex-col">
         <CreatePost />
+        <Suspense fallback={<TimelineSkeleton />}>
+          <TimelinePosts />
+        </Suspense>
       </div>
-      <Suspense fallback={<TimelineSkeleton />}>
-        <TimelinePosts />
-      </Suspense>
     </main>
   )
 }
