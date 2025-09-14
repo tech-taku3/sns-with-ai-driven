@@ -1,209 +1,97 @@
-"use client";
+import { getTimelinePosts } from '@/lib/api/posts'
+import { PostCard } from '@/components/post-card'
+import { Suspense } from 'react'
+import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { ImageIcon, SmileIcon, StickerIcon, ListIcon, CalendarIcon, MapPinIcon } from 'lucide-react'
 
-import { useState } from "react";
-import { 
-  Image as ImageIcon, 
-  Smile, 
-  CalendarDays,
-  MessageCircle,
-  Repeat,
-  Heart,
-  BarChart3,
-  Bookmark,
-  Share2,
-  X
-} from "lucide-react";
-import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { getGlobalProfileImage } from "../timeline";
-import { Post } from "@/types/post";
-import { mockPosts } from "@/data/posts";
-
-// 画像関連のユーティリティ関数
-const getImageGridClass = (imageCount: number) => {
-  switch (imageCount) {
-    case 1:
-      return "grid-cols-1";
-    case 2:
-      return "grid-cols-2 gap-1";
-    case 3:
-      return "grid-cols-3 gap-1";
-    case 4:
-      return "grid-cols-2 gap-1";
-    default:
-      return "grid-cols-1";
-  }
-};
-
-const getImageHeightClass = (imageCount: number, index: number) => {
-  if (imageCount === 1) return "h-64";
-  if (imageCount === 2) return "h-48";
-  if (imageCount === 3) return index === 0 ? "row-span-2 h-48" : "h-24";
-  if (imageCount === 4) return "h-24";
-  return "h-48";
-};
-
-// 投稿作成コンポーネント
-const PostComposer = () => {
-  const [postContent, setPostContent] = useState("");
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [profileImage, setProfileImage] = useState<string>(getGlobalProfileImage());
-
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    if (files.length > 0 && selectedImages.length < 4) {
-      files.slice(0, 4 - selectedImages.length).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          setSelectedImages(prev => [...prev, e.target?.result as string]);
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-  };
-
-  const removeImage = (index: number) => {
-    setSelectedImages(prev => prev.filter((_, i) => i !== index));
-  };
-
+async function TimelinePosts() {
+  const posts = await getTimelinePosts()
+  
   return (
-    <div className="px-4 py-3 flex gap-3">
+    <div className="flex flex-col divide-y">
+      {posts.map((post) => (
+        <PostCard key={post.id} post={post} />
+      ))}
+    </div>
+  )
+}
+
+function CreatePost() {
+  return (
+    <div className="flex gap-4 p-4 border-b">
       <Avatar>
-        <AvatarImage src={profileImage} alt="me" />
-        <AvatarFallback>me</AvatarFallback>
+        <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=current-user" />
+        <AvatarFallback>Me</AvatarFallback>
       </Avatar>
       <div className="flex-1">
-        <Input 
-          placeholder="What's happening?" 
-          value={postContent}
-          onChange={(e) => setPostContent(e.target.value)}
-        />
-        
-        {/* Image preview */}
-        {selectedImages.length > 0 && (
-          <div className="mt-3 rounded-2xl overflow-hidden">
-            <div className={`grid ${getImageGridClass(selectedImages.length)}`}>
-              {selectedImages.map((image, index) => (
-                <div key={index} className={`relative ${getImageGridClass(selectedImages.length)}`}>
-                  <img 
-                    src={image} 
-                    alt={`Preview ${index + 1}`} 
-                    className={`w-full ${getImageHeightClass(selectedImages.length, index)} object-cover`}
-                  />
-                  <button
-                    onClick={() => removeImage(index)}
-                    className="absolute top-2 right-2 rounded-full bg-black/60 text-white p-1 hover:bg-black/80 transition"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        
-        <div className="mt-2 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-black/60 dark:text-white/60">
-            <label className={`cursor-pointer transition-colors ${selectedImages.length >= 4 ? 'opacity-50 cursor-not-allowed' : 'hover:text-blue-500'}`}>
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="What's happening?"
+            className="w-full bg-transparent text-xl outline-none placeholder:text-gray-500"
+          />
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="flex gap-2 text-primary">
+            <button className="rounded-full p-2 hover:bg-primary/10">
               <ImageIcon className="h-5 w-5" />
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageUpload}
-                className="hidden"
-                disabled={selectedImages.length >= 4}
-              />
-            </label>
-            <Smile className="h-5 w-5" />
-            <CalendarDays className="h-5 w-5" />
+            </button>
+            <button className="rounded-full p-2 hover:bg-primary/10">
+              <StickerIcon className="h-5 w-5" />
+            </button>
+            <button className="rounded-full p-2 hover:bg-primary/10">
+              <ListIcon className="h-5 w-5" />
+            </button>
+            <button className="rounded-full p-2 hover:bg-primary/10">
+              <SmileIcon className="h-5 w-5" />
+            </button>
+            <button className="rounded-full p-2 hover:bg-primary/10">
+              <CalendarIcon className="h-5 w-5" />
+            </button>
+            <button className="rounded-full p-2 hover:bg-primary/10">
+              <MapPinIcon className="h-5 w-5" />
+            </button>
           </div>
-          <Button size="sm">Post</Button>
+          <Button size="sm" className="rounded-full px-4">
+            Post
+          </Button>
         </div>
       </div>
     </div>
-  );
-};
-
-// 投稿リストコンポーネント
-const PostsList = () => {
-  return (
-    <ul>
-      {mockPosts.map((p) => (
-        <li key={p.id} className="px-4 py-3 flex gap-3 hover:bg-black/[.02] dark:hover:bg-white/[.03] transition cursor-pointer">
-          <Avatar>
-            <AvatarImage src="/vercel.svg" alt={p.name} />
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <div className="flex gap-2 text-sm items-center">
-              <span className="font-semibold truncate">{p.name}</span>
-              <span className="text-black/50 dark:text-white/50 truncate">{p.handle}</span>
-              <span className="text-black/30 dark:text-white/30">·</span>
-              <span className="text-black/30 dark:text-white/30">{p.timestamp}</span>
-            </div>
-            <p className="mt-1 text-[15px] leading-6 whitespace-pre-wrap">{p.content}</p>
-            
-            {/* Post images */}
-            {p.images && p.images.length > 0 && (
-              <div className="mt-3 rounded-2xl overflow-hidden">
-                <div className={`grid ${getImageGridClass(p.images.length)}`}>
-                  {p.images?.map((image, index) => (
-                    <div key={index} className={`relative ${getImageGridClass(p.images!.length)}`}>
-                      <img 
-                        src={image} 
-                        alt={`Post content ${index + 1}`} 
-                        className={`w-full ${getImageHeightClass(p.images!.length, index)} object-cover`}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {/* Engagement buttons */}
-            <div className="mt-3 grid grid-cols-6 sm:flex sm:items-center sm:justify-between max-w-md">
-              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-1 sm:p-2 transition-colors">
-                <MessageCircle className="h-4 w-4" />
-                <span className="hidden sm:inline">{p.comments}</span>
-              </button>
-              
-              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-green-500 hover:bg-green-500/10 rounded-full p-1 sm:p-2 transition-colors">
-                <Repeat className="h-4 w-4" />
-                <span className="hidden sm:inline">{p.retweets}</span>
-              </button>
-              
-              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-pink-500 hover:bg-pink-500/10 rounded-full p-1 sm:p-2 transition-colors">
-                <Heart className="h-4 w-4" />
-                <span className="hidden sm:inline">{p.likes}</span>
-              </button>
-              
-              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-1 sm:p-2 transition-colors">
-                <BarChart3 className="h-4 w-4" />
-                <span className="hidden sm:inline">{p.insights >= 1000 ? `${(p.insights / 1000).toFixed(0)}K` : p.insights.toLocaleString()}</span>
-              </button>
-              
-              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-1 sm:p-2 transition-colors">
-                <Bookmark className="h-4 w-4" />
-              </button>
-              
-              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-1 sm:p-2 transition-colors">
-                <Share2 className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        </li>
-      ))}
-    </ul>
-  );
-};
+  )
+}
 
 export function TimelineContent() {
   return (
-    <div className="flex-1 overflow-y-auto pb-[56px] lg:pb-0">
-      <PostComposer />
-      <div className="h-2 bg-black/[.03] dark:bg-white/[.04]" />
-      <PostsList />
+    <main className="flex-1 border-x min-h-screen">
+      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h1 className="text-xl font-bold">Home</h1>
+        </div>
+        <CreatePost />
+      </div>
+      <Suspense fallback={<TimelineSkeleton />}>
+        <TimelinePosts />
+      </Suspense>
+    </main>
+  )
+}
+
+function TimelineSkeleton() {
+  return (
+    <div className="flex flex-col gap-4 p-4">
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="animate-pulse">
+          <div className="flex gap-4">
+            <div className="h-12 w-12 rounded-full bg-gray-200" />
+            <div className="flex-1">
+              <div className="h-4 w-1/4 rounded bg-gray-200" />
+              <div className="mt-2 h-4 w-3/4 rounded bg-gray-200" />
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
-  );
+  )
 }
