@@ -17,8 +17,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { getGlobalProfileImage } from "../timeline";
-import { Post } from "@/types/post";
-import { profilePosts } from "@/data/posts";
+import type { Post as DbPost } from "@/lib/api/posts";
 
 // 画像関連のユーティリティ関数
 const getImageGridClass = (imageCount: number) => {
@@ -127,69 +126,58 @@ const PostComposer = () => {
 };
 
 // 投稿リストコンポーネント
-const PostsList = () => {
+interface PostsListProps {
+  posts: DbPost[];
+}
+
+const PostsList = ({ posts }: PostsListProps) => {
   const profileImage = getGlobalProfileImage();
 
   return (
     <ul>
-      {profilePosts.map((p) => (
+      {posts.map((p) => (
         <li key={p.id} className="px-4 py-3 flex gap-3 hover:bg-black/[.02] dark:hover:bg-white/[.03] transition cursor-pointer">
           <Avatar>
-            <AvatarImage src={profileImage} alt={p.name} />
-            <AvatarFallback>tech_taku</AvatarFallback>
+            <AvatarImage src={p.author.profileImageUrl ?? profileImage} alt={p.author.displayName} />
+            <AvatarFallback>{p.author.displayName[0]}</AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
             <div className="flex gap-2 text-sm items-center">
-              <span className="font-semibold truncate">{p.name}</span>
-              <span className="text-black/50 dark:text-white/50 truncate">{p.handle}</span>
+              <span className="font-semibold truncate">{p.author.displayName}</span>
+              <span className="text-black/50 dark:text-white/50 truncate">@{p.author.username}</span>
               <span className="text-black/30 dark:text-white/30">·</span>
-              <span className="text-black/30 dark:text-white/30">{p.timestamp}</span>
+              <span className="text-black/30 dark:text-white/30">{new Date(p.createdAt).toLocaleDateString()}</span>
             </div>
             <p className="mt-1 text-[15px] leading-6 whitespace-pre-wrap">{p.content}</p>
-            
-            {/* Images */}
-            {p.images && p.images.length > 0 && (
+            {p.mediaUrl && (
               <div className="mt-3 rounded-2xl overflow-hidden">
-                <div className={`grid ${getImageGridClass(p.images.length)}`}>
-                  {p.images.map((image, index) => (
-                    <div key={index} className={`relative ${p.images && getImageGridClass(p.images.length)}`}>
-                      <img 
-                        src={image} 
-                        alt={`Post image ${index + 1}`} 
-                        className={`w-full ${p.images && getImageHeightClass(p.images.length, index)} object-cover`}
-                      />
-                    </div>
-                  ))}
-                </div>
+                <img 
+                  src={p.mediaUrl}
+                  alt="Post image"
+                  className="w-full h-64 object-cover"
+                />
               </div>
             )}
-            
-            {/* Engagement buttons */}
             <div className="mt-3 grid grid-cols-6 sm:flex sm:items-center sm:justify-between max-w-md">
               <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-1 sm:p-2 transition-colors">
                 <MessageCircle className="h-4 w-4" />
-                <span className="hidden sm:inline">{p.comments}</span>
+                <span className="hidden sm:inline">0</span>
               </button>
-              
               <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-green-500 hover:bg-green-500/10 rounded-full p-1 sm:p-2 transition-colors">
                 <Repeat className="h-4 w-4" />
-                <span className="hidden sm:inline">{p.retweets}</span>
+                <span className="hidden sm:inline">0</span>
               </button>
-              
               <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-pink-500 hover:bg-pink-500/10 rounded-full p-1 sm:p-2 transition-colors">
                 <Heart className="h-4 w-4" />
-                <span className="hidden sm:inline">{p.likes}</span>
+                <span className="hidden sm:inline">{p._count.likes}</span>
               </button>
-              
               <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-1 sm:p-2 transition-colors">
                 <BarChart3 className="h-4 w-4" />
-                <span className="hidden sm:inline">{p.insights >= 1000 ? `${(p.insights / 1000).toFixed(0)}K` : p.insights.toLocaleString()}</span>
+                <span className="hidden sm:inline">0</span>
               </button>
-              
               <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-1 sm:p-2 transition-colors">
                 <Bookmark className="h-4 w-4" />
               </button>
-              
               <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-1 sm:p-2 transition-colors">
                 <Share2 className="h-4 w-4" />
               </button>
@@ -201,12 +189,16 @@ const PostsList = () => {
   );
 };
 
-export function ProfileContent() {
+interface ProfileContentProps {
+  posts?: DbPost[];
+}
+
+export function ProfileContent({ posts = [] }: ProfileContentProps) {
   return (
     <div className="pb-[56px] lg:pb-0">
       <PostComposer />
       <div className="h-2 bg-black/[.03] dark:bg-white/[.04]" />
-      <PostsList />
+      <PostsList posts={posts} />
     </div>
   );
 }

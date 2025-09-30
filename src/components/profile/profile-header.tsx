@@ -3,7 +3,13 @@
 import { ArrowLeft, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export function ProfileHeader() {
+interface ProfileHeaderProps {
+  username?: string;
+  displayName?: string;
+  postsCount?: number;
+}
+
+export function ProfileHeader({ username = "tech_taku", displayName = "tech_taku", postsCount = 0 }: ProfileHeaderProps) {
   const router = useRouter();
 
   return (
@@ -17,11 +23,11 @@ export function ProfileHeader() {
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div>
-            <div className="font-bold text-xl">tech_taku</div>
-            <div className="text-sm text-black/50 dark:text-white/50">0 posts</div>
+            <div className="font-bold text-xl">{displayName}</div>
+            <div className="text-sm text-black/50 dark:text-white/50">{postsCount} posts</div>
           </div>
         </div>
-        <button className="rounded-full p-2 hover:bg-black/[.05] dark:hover:bg-white/[.08] transition">
+        <button className="rounded-full p-2 hover:bg-black/[.05] dark:hover:bg-white/[.08] transition" aria-label="Search">
           <Search className="h-5 w-5" />
         </button>
       </div>

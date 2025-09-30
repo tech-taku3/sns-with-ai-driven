@@ -44,3 +44,25 @@ export async function getTimelinePosts(): Promise<Post[]> {
     take: 20
   })
 }
+
+export async function getUserPostsByUsername(username: string): Promise<Post[]> {
+  return await prisma.post.findMany({
+    where: {
+      isPublished: true,
+      author: { username }
+    },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      author: {
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+          profileImageUrl: true
+        }
+      },
+      _count: { select: { likes: true } }
+    },
+    take: 20
+  })
+}
