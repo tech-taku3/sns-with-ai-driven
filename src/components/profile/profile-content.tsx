@@ -17,7 +17,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { getGlobalProfileImage } from "../timeline";
-import type { Post as DbPost } from "@/lib/api/posts";
+import type { Post as DbPost } from "@/lib/dal/posts";
 
 // 画像関連のユーティリティ関数
 const getImageGridClass = (imageCount: number) => {

@@ -1,4 +1,4 @@
-import { Post } from '@/lib/api/posts'
+import { Post } from '@/lib/dal/posts'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card } from '@/components/ui/card'
 import { HeartIcon, MessageCircleIcon, RepeatIcon, ShareIcon, MoreHorizontalIcon } from 'lucide-react'

@@ -3,8 +3,8 @@ import { RightSidebar } from "@/components/right-sidebar";
 import { MobileNav } from "@/components/mobile-nav";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfileContent } from "@/components/profile/profile-content";
-import { getUserByUsername } from "@/lib/api/users";
-import { getUserPostsByUsername } from "@/lib/api/posts";
+import { getUserByUsername } from "@/lib/dal/users";
+import { getUserPostsByUsername } from "@/lib/dal/posts";
 
 interface PageProps {
   params: { username: string }

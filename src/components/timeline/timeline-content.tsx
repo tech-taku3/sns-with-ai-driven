@@ -1,4 +1,4 @@
-import { getTimelinePosts } from '@/lib/api/posts'
+import { getTimelinePosts } from '@/lib/dal/posts'
 import { PostCard } from '@/components/post-card'
 import { Suspense } from 'react'
 import { Button } from '@/components/ui/button'
