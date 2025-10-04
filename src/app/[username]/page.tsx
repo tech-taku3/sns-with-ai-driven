@@ -1,8 +1,7 @@
 import { LeftSidebar } from "@/components/left-sidebar";
 import { RightSidebar } from "@/components/right-sidebar";
 import { MobileNav } from "@/components/mobile-nav";
-import { ProfileHeader } from "@/components/profile/profile-header";
-import { ProfileContent } from "@/components/profile/profile-content";
+import { Profile } from "@/components/profile";
 import { getUserByUsername } from "@/lib/dal/users";
 import { getUserPostsByUsername } from "@/lib/dal/posts";
 
@@ -35,15 +34,30 @@ export default async function UserProfilePage({ params }: PageProps) {
     )
   }
 
+  // 最初の投稿をピン留め投稿として使用（実際のアプリでは専用のフィールドがある）
+  const pinnedPost = posts.length > 0 ? posts[0] : undefined;
+  const regularPosts = pinnedPost ? posts.slice(1) : posts;
+
   return (
     <div className="flex justify-center min-h-screen">
       <div className="flex w-full lg:w-[1265px] mx-auto">
         <LeftSidebar />
-        <main className="flex-1 lg:flex-none lg:w-[600px] lg:min-w-[600px] border-x border-gray-200 dark:border-gray-800">
-          <div className="min-w-0">
-            <ProfileHeader displayName={user.displayName} username={user.username} postsCount={user._count.posts} />
-            <ProfileContent posts={posts} />
-          </div>
+        <main className="flex-1 lg:flex-none lg:w-[600px] lg:min-w-[600px]">
+          <Profile 
+            user={{
+              username: user.username,
+              displayName: user.displayName,
+              profileImageUrl: user.profileImageUrl || undefined,
+              bio: user.bio,
+              followersCount: user._count.followers,
+              followingCount: user._count.following,
+              postsCount: user._count.posts,
+              joinDate: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+              isVerified: false
+            }}
+            posts={regularPosts}
+            pinnedPost={pinnedPost}
+          />
         </main>
         <RightSidebar />
       </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { 
   MessageCircle,
   Repeat,
@@ -8,119 +7,122 @@ import {
   BarChart3,
   Bookmark,
   Share2,
-  Image as ImageIcon,
-  Smile,
-  X,
-  CalendarDays
+  MoreHorizontal
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { getGlobalProfileImage } from "../timeline";
+import { formatDistance } from "date-fns/formatDistance";
+import Link from "next/link";
+import Image from "next/image";
 import type { Post as DbPost } from "@/lib/dal/posts";
 
-// 画像関連のユーティリティ関数
-const getImageGridClass = (imageCount: number) => {
-  switch (imageCount) {
-    case 1:
-      return "grid-cols-1";
-    case 2:
-      return "grid-cols-2 gap-1";
-    case 3:
-      return "grid-cols-3 gap-1";
-    case 4:
-      return "grid-cols-2 gap-1";
-    default:
-      return "grid-cols-1";
-  }
-};
-
-const getImageHeightClass = (imageCount: number, index: number) => {
-  if (imageCount === 1) return "h-64";
-  if (imageCount === 2) return "h-48";
-  if (imageCount === 3) return index === 0 ? "row-span-2 h-48" : "h-24";
-  if (imageCount === 4) return "h-24";
-  return "h-48";
-};
-
-// 投稿作成コンポーネント
-const PostComposer = () => {
-  const [postContent, setPostContent] = useState("");
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [profileImage, setProfileImage] = useState<string>(getGlobalProfileImage());
-
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    if (files.length > 0 && selectedImages.length < 4) {
-      files.slice(0, 4 - selectedImages.length).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          setSelectedImages(prev => [...prev, e.target?.result as string]);
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-  };
-
-  const removeImage = (index: number) => {
-    setSelectedImages(prev => prev.filter((_, i) => i !== index));
-  };
-
+// ピン留め投稿コンポーネント
+const PinnedPost = ({ post }: { post: DbPost }) => {
+  const { author } = post;
+  
   return (
-    <div className="px-4 py-3 flex gap-3">
-      <Avatar>
-        <AvatarImage src={profileImage} alt="tech_taku" />
-        <AvatarFallback>tech_taku</AvatarFallback>
-      </Avatar>
-      <div className="flex-1">
-        <Input 
-          placeholder="What's happening?" 
-          value={postContent}
-          onChange={(e) => setPostContent(e.target.value)}
-        />
-        
-        {/* Image preview */}
-        {selectedImages.length > 0 && (
-          <div className="mt-3 rounded-2xl overflow-hidden">
-            <div className={`grid ${getImageGridClass(selectedImages.length)}`}>
-              {selectedImages.map((image, index) => (
-                <div key={index} className={`relative ${getImageGridClass(selectedImages.length)}`}>
-                  <img 
-                    src={image} 
-                    alt={`Preview ${index + 1}`} 
-                    className={`w-full ${getImageHeightClass(selectedImages.length, index)} object-cover`}
+    <div className="border-b border-gray-200 dark:border-gray-800">
+      <div className="px-4 py-2 text-sm text-gray-500 flex items-center gap-2">
+        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+        </svg>
+        Pinned
+      </div>
+      <article className="p-4 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors cursor-pointer">
+        <Link href={`/${author.username}/status/${post.id}`}>
+          <div className="flex gap-3">
+            <Avatar className="w-10 h-10">
+              <AvatarImage src={author.profileImageUrl ?? undefined} />
+              <AvatarFallback>{author.displayName[0]}</AvatarFallback>
+            </Avatar>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-semibold truncate">{author.displayName}</span>
+                <span className="text-gray-500 text-sm">@{author.username}</span>
+                <span className="text-gray-500">·</span>
+                <time className="text-gray-500 text-sm">
+                  {formatDistance(post.createdAt, new Date(), { addSuffix: true })}
+                </time>
+                <button
+                  className="ml-auto rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </button>
+              </div>
+
+              <p className="text-sm leading-relaxed mb-3 whitespace-pre-wrap break-words">{post.content}</p>
+
+              {post.mediaUrl && (
+                <div className="mt-2 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                  <Image
+                    src={post.mediaUrl}
+                    alt="Post media"
+                    width={400}
+                    height={200}
+                    className="w-full object-cover"
                   />
-                  <button
-                    onClick={() => removeImage(index)}
-                    className="absolute top-2 right-2 rounded-full bg-black/60 text-white p-1 hover:bg-black/80 transition"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
                 </div>
-              ))}
+              )}
+
+              <div className="flex items-center justify-between max-w-md text-gray-500">
+                <button
+                  className="flex items-center gap-1 group"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="rounded-full p-1.5 group-hover:bg-blue-500/10">
+                    <MessageCircle className="h-4 w-4 group-hover:text-blue-500" />
+                  </div>
+                  <span className="text-xs group-hover:text-blue-500">{post._count.replies || 0}</span>
+                </button>
+                <button
+                  className="flex items-center gap-1 group"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="rounded-full p-1.5 group-hover:bg-green-500/10">
+                    <Repeat className="h-4 w-4 group-hover:text-green-500" />
+                  </div>
+                  <span className="text-xs group-hover:text-green-500">0</span>
+                </button>
+                <button
+                  className="flex items-center gap-1 group"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="rounded-full p-1.5 group-hover:bg-pink-500/10">
+                    <Heart className="h-4 w-4 group-hover:text-pink-500" />
+                  </div>
+                  <span className="text-xs group-hover:text-pink-500">{post._count.likes || 0}</span>
+                </button>
+                <button
+                  className="flex items-center gap-1 group"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="rounded-full p-1.5 group-hover:bg-blue-500/10">
+                    <BarChart3 className="h-4 w-4 group-hover:text-blue-500" />
+                  </div>
+                  <span className="text-xs group-hover:text-blue-500">0</span>
+                </button>
+                <button
+                  className="flex items-center gap-1 group"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="rounded-full p-1.5 group-hover:bg-blue-500/10">
+                    <Bookmark className="h-4 w-4 group-hover:text-blue-500" />
+                  </div>
+                </button>
+                <button
+                  className="flex items-center gap-1 group"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="rounded-full p-1.5 group-hover:bg-blue-500/10">
+                    <Share2 className="h-4 w-4 group-hover:text-blue-500" />
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
-        )}
-        
-        <div className="mt-2 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-black/60 dark:text-white/60">
-            <label className={`cursor-pointer transition-colors ${selectedImages.length >= 4 ? 'opacity-50 cursor-not-allowed' : 'hover:text-blue-500'}`}>
-              <ImageIcon className="h-5 w-5" />
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageUpload}
-                className="hidden"
-                disabled={selectedImages.length >= 4}
-              />
-            </label>
-            <Smile className="h-5 w-5" />
-            <CalendarDays className="h-5 w-5" />
-          </div>
-          <Button size="sm">Post</Button>
-        </div>
-      </div>
+        </Link>
+      </article>
     </div>
   );
 };
@@ -131,74 +133,130 @@ interface PostsListProps {
 }
 
 const PostsList = ({ posts }: PostsListProps) => {
-  const profileImage = getGlobalProfileImage();
-
   return (
-    <ul>
-      {posts.map((p) => (
-        <li key={p.id} className="px-4 py-3 flex gap-3 hover:bg-black/[.02] dark:hover:bg-white/[.03] transition cursor-pointer">
-          <Avatar>
-            <AvatarImage src={p.author.profileImageUrl ?? profileImage} alt={p.author.displayName} />
-            <AvatarFallback>{p.author.displayName[0]}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <div className="flex gap-2 text-sm items-center">
-              <span className="font-semibold truncate">{p.author.displayName}</span>
-              <span className="text-black/50 dark:text-white/50 truncate">@{p.author.username}</span>
-              <span className="text-black/30 dark:text-white/30">·</span>
-              <span className="text-black/30 dark:text-white/30">{new Date(p.createdAt).toLocaleDateString()}</span>
-            </div>
-            <p className="mt-1 text-[15px] leading-6 whitespace-pre-wrap">{p.content}</p>
-            {p.mediaUrl && (
-              <div className="mt-3 rounded-2xl overflow-hidden">
-                <img 
-                  src={p.mediaUrl}
-                  alt="Post image"
-                  className="w-full h-64 object-cover"
-                />
+    <div>
+      {posts.map((post) => {
+        const { author } = post;
+        
+        return (
+          <article key={post.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors cursor-pointer border-b border-gray-200 dark:border-gray-800">
+            <Link href={`/${author.username}/status/${post.id}`}>
+              <div className="flex gap-3">
+                <Avatar className="w-10 h-10">
+                  <AvatarImage src={author.profileImageUrl ?? undefined} />
+                  <AvatarFallback>{author.displayName[0]}</AvatarFallback>
+                </Avatar>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-semibold truncate">{author.displayName}</span>
+                    <span className="text-gray-500 text-sm">@{author.username}</span>
+                    <span className="text-gray-500">·</span>
+                    <time className="text-gray-500 text-sm">
+                      {formatDistance(post.createdAt, new Date(), { addSuffix: true })}
+                    </time>
+                    <button
+                      className="ml-auto rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  <p className="text-sm leading-relaxed mb-3 whitespace-pre-wrap break-words">{post.content}</p>
+
+                  {post.mediaUrl && (
+                    <div className="mt-2 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                      <Image
+                        src={post.mediaUrl}
+                        alt="Post media"
+                        width={400}
+                        height={200}
+                        className="w-full object-cover"
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between max-w-md text-gray-500">
+                    <button
+                      className="flex items-center gap-1 group"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="rounded-full p-1.5 group-hover:bg-blue-500/10">
+                        <MessageCircle className="h-4 w-4 group-hover:text-blue-500" />
+                      </div>
+                      <span className="text-xs group-hover:text-blue-500">{post._count.replies || 0}</span>
+                    </button>
+                    <button
+                      className="flex items-center gap-1 group"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="rounded-full p-1.5 group-hover:bg-green-500/10">
+                        <Repeat className="h-4 w-4 group-hover:text-green-500" />
+                      </div>
+                      <span className="text-xs group-hover:text-green-500">0</span>
+                    </button>
+                    <button
+                      className="flex items-center gap-1 group"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="rounded-full p-1.5 group-hover:bg-pink-500/10">
+                        <Heart className="h-4 w-4 group-hover:text-pink-500" />
+                      </div>
+                      <span className="text-xs group-hover:text-pink-500">{post._count.likes || 0}</span>
+                    </button>
+                    <button
+                      className="flex items-center gap-1 group"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="rounded-full p-1.5 group-hover:bg-blue-500/10">
+                        <BarChart3 className="h-4 w-4 group-hover:text-blue-500" />
+                      </div>
+                      <span className="text-xs group-hover:text-blue-500">0</span>
+                    </button>
+                    <button
+                      className="flex items-center gap-1 group"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="rounded-full p-1.5 group-hover:bg-blue-500/10">
+                        <Bookmark className="h-4 w-4 group-hover:text-blue-500" />
+                      </div>
+                    </button>
+                    <button
+                      className="flex items-center gap-1 group"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="rounded-full p-1.5 group-hover:bg-blue-500/10">
+                        <Share2 className="h-4 w-4 group-hover:text-blue-500" />
+                      </div>
+                    </button>
+                  </div>
+                </div>
               </div>
-            )}
-            <div className="mt-3 grid grid-cols-6 sm:flex sm:items-center sm:justify-between max-w-md">
-              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-1 sm:p-2 transition-colors">
-                <MessageCircle className="h-4 w-4" />
-                <span className="hidden sm:inline">0</span>
-              </button>
-              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-green-500 hover:bg-green-500/10 rounded-full p-1 sm:p-2 transition-colors">
-                <Repeat className="h-4 w-4" />
-                <span className="hidden sm:inline">0</span>
-              </button>
-              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-pink-500 hover:bg-pink-500/10 rounded-full p-1 sm:p-2 transition-colors">
-                <Heart className="h-4 w-4" />
-                <span className="hidden sm:inline">{p._count.likes}</span>
-              </button>
-              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-1 sm:p-2 transition-colors">
-                <BarChart3 className="h-4 w-4" />
-                <span className="hidden sm:inline">0</span>
-              </button>
-              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-1 sm:p-2 transition-colors">
-                <Bookmark className="h-4 w-4" />
-              </button>
-              <button className="flex items-center gap-1 sm:gap-2 text-sm text-black/60 dark:text-white/60 hover:text-blue-500 hover:bg-blue-500/10 rounded-full p-1 sm:p-2 transition-colors">
-                <Share2 className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        </li>
-      ))}
-    </ul>
+            </Link>
+          </article>
+        );
+      })}
+    </div>
   );
 };
 
 interface ProfileContentProps {
   posts?: DbPost[];
+  pinnedPost?: DbPost;
 }
 
-export function ProfileContent({ posts = [] }: ProfileContentProps) {
+export function ProfileContent({ posts = [], pinnedPost }: ProfileContentProps) {
   return (
     <div className="pb-[56px] lg:pb-0">
-      <PostComposer />
-      <div className="h-2 bg-black/[.03] dark:bg-white/[.04]" />
-      <PostsList posts={posts} />
+      {pinnedPost && <PinnedPost post={pinnedPost} />}
+      {posts.length > 0 ? (
+        <PostsList posts={posts} />
+      ) : (
+        <div className="p-8 text-center text-gray-500">
+          <p>No posts yet</p>
+        </div>
+      )}
     </div>
   );
 }
