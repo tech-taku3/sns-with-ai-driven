@@ -26,15 +26,13 @@ export function PostCard({ post }: PostCardProps) {
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-            <span 
-              className="font-semibold hover:underline truncate cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation()
-                window.location.href = `/${author.username}`
-              }}
+            <Link 
+              href={`/${author.username}`}
+              className="font-semibold hover:underline truncate"
+              onClick={(e) => e.stopPropagation()}
             >
               {author.displayName}
-            </span>
+            </Link>
             <span className="text-gray-500">@{author.username}</span>
             <span className="text-gray-500">·</span>
             <time className="text-gray-500">
