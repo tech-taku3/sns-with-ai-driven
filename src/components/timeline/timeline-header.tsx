@@ -7,7 +7,6 @@ import { getGlobalProfileImage } from "../timeline";
 import { cn } from "@/lib/utils";
 import { Home, Search, Bell, Mail, Rocket, Bookmark, Users, Briefcase, Star, Settings, User } from "lucide-react";
 import Link from "next/link";
-import { Button } from "../ui/button";
 import Image from "next/image";
 
 export function TimelineHeader() {

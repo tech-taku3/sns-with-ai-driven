@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Home, Search, Bell, Mail, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface MobileNavProps extends React.HTMLAttributes<HTMLElement> {}
+type MobileNavProps = React.HTMLAttributes<HTMLElement>
 
 export function MobileNav({ className, ...props }: MobileNavProps) {
   const pathname = usePathname();
