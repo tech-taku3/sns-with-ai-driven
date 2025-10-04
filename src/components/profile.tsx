@@ -16,15 +16,14 @@ interface ProfileProps {
     isVerified?: boolean;
   };
   posts?: Post[];
-  pinnedPost?: Post;
 }
 
-export function Profile({ user, posts, pinnedPost }: ProfileProps) {
+export function Profile({ user, posts }: ProfileProps) {
   return (
     <section className="min-h-screen border-x border-gray-200 dark:border-gray-800">
       <ProfileHeader user={user} />
       <ProfileTabs />
-      <ProfileContent posts={posts} pinnedPost={pinnedPost} />
+      <ProfileContent posts={posts} />
     </section>
   );
 }

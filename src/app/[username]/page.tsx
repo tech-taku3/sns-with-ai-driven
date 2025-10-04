@@ -34,9 +34,6 @@ export default async function UserProfilePage({ params }: PageProps) {
     )
   }
 
-  // 最初の投稿をピン留め投稿として使用（実際のアプリでは専用のフィールドがある）
-  const pinnedPost = posts.length > 0 ? posts[0] : undefined;
-  const regularPosts = pinnedPost ? posts.slice(1) : posts;
 
   return (
     <div className="flex justify-center min-h-screen">
@@ -55,8 +52,7 @@ export default async function UserProfilePage({ params }: PageProps) {
               joinDate: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
               isVerified: false
             }}
-            posts={regularPosts}
-            pinnedPost={pinnedPost}
+            posts={posts}
           />
         </main>
         <RightSidebar />
