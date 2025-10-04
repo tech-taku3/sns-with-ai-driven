@@ -7,6 +7,7 @@ import { HeartIcon, MessageCircleIcon, RepeatIcon, ShareIcon, MoreHorizontalIcon
 import { formatDistance } from 'date-fns/formatDistance'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface PostCardProps {
   post: Post
@@ -14,6 +15,7 @@ interface PostCardProps {
 
 export function PostCard({ post }: PostCardProps) {
   const { author } = post
+  const router = useRouter()
   
   return (
     <article className="p-4 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] cursor-pointer">
@@ -26,13 +28,16 @@ export function PostCard({ post }: PostCardProps) {
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-            <Link 
-              href={`/${author.username}`}
-              className="font-semibold hover:underline truncate"
-              onClick={(e) => e.stopPropagation()}
+            <span 
+              className="font-semibold hover:underline truncate cursor-pointer"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                router.push(`/${author.username}`)
+              }}
             >
               {author.displayName}
-            </Link>
+            </span>
             <span className="text-gray-500">@{author.username}</span>
             <span className="text-gray-500">·</span>
             <time className="text-gray-500">
