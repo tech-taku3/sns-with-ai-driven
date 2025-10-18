@@ -13,6 +13,7 @@ import {
   MapPinIcon 
 } from "lucide-react";
 import { createPost } from "@/lib/actions/posts";
+import { toast } from "sonner";
 
 interface NewPostInputProps {
   className?: string;
@@ -40,8 +41,11 @@ export function NewPostInput({ className = "", parentId }: NewPostInputProps) {
 
       if (result.success) {
         setContent("");
+        toast.success("投稿しました！");
       } else {
-        setError(result.error || "投稿に失敗しました。");
+        const errorMessage = result.error || "投稿に失敗しました";
+        setError(errorMessage);
+        toast.error(errorMessage);
       }
     });
   };
