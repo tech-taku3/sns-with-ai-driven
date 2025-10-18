@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useUser, SignInButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -12,21 +12,38 @@ import {
   CalendarIcon, 
   MapPinIcon 
 } from "lucide-react";
+import { createPost } from "@/lib/actions/posts";
 
 interface CreatePostProps {
   className?: string;
-  onSubmit?: (content: string) => void;
+  parentId?: string;
 }
 
-export function CreatePost({ className = "", onSubmit }: CreatePostProps) {
+export function CreatePost({ className = "", parentId }: CreatePostProps) {
   const { user, isLoaded } = useUser();
   const [content, setContent] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  const handlePost = () => {
-    if (user && content.trim()) {
-      onSubmit?.(content);
-      setContent("");
+  const handlePost = async () => {
+    if (!user || !content.trim()) {
+      return;
     }
+
+    setError(null);
+
+    startTransition(async () => {
+      const result = await createPost({
+        content,
+        parentId,
+      });
+
+      if (result.success) {
+        setContent("");
+      } else {
+        setError(result.error || "投稿に失敗しました。");
+      }
+    });
   };
 
   return (
@@ -48,45 +65,51 @@ export function CreatePost({ className = "", onSubmit }: CreatePostProps) {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             className="w-full bg-transparent text-xl outline-none placeholder:text-gray-500"
-            disabled={!user}
+            disabled={!user || isPending}
           />
         </div>
+        
+        {error && (
+          <div className="mb-3 text-sm text-red-500">
+            {error}
+          </div>
+        )}
         
         <div className="flex items-center justify-between">
           <div className="flex -ml-2">
             <button 
               className="rounded-full p-2 hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!user}
+              disabled={!user || isPending}
             >
               <ImageIcon className="h-5 w-5" />
             </button>
             <button 
               className="rounded-full p-2 hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!user}
+              disabled={!user || isPending}
             >
               <StickerIcon className="h-5 w-5" />
             </button>
             <button 
               className="rounded-full p-2 hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!user}
+              disabled={!user || isPending}
             >
               <ListIcon className="h-5 w-5" />
             </button>
             <button 
               className="rounded-full p-2 hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!user}
+              disabled={!user || isPending}
             >
               <SmileIcon className="h-5 w-5" />
             </button>
             <button 
               className="rounded-full p-2 hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!user}
+              disabled={!user || isPending}
             >
               <CalendarIcon className="h-5 w-5" />
             </button>
             <button 
               className="rounded-full p-2 hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!user}
+              disabled={!user || isPending}
             >
               <MapPinIcon className="h-5 w-5" />
             </button>
@@ -97,9 +120,9 @@ export function CreatePost({ className = "", onSubmit }: CreatePostProps) {
               size="sm" 
               className="rounded-full px-4 bg-primary text-primary-foreground"
               onClick={handlePost}
-              disabled={!content.trim()}
+              disabled={!content.trim() || isPending}
             >
-              Post
+              {isPending ? "投稿中..." : "Post"}
             </Button>
           ) : (
             <SignInButton 

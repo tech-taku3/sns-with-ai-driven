@@ -6,8 +6,8 @@ import { HeartIcon, MessageCircleIcon, RepeatIcon, ShareIcon, MoreHorizontalIcon
 import { formatDistance } from 'date-fns/formatDistance'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { CreatePost } from '@/components/timeline/create-post'
 
 interface PostDetailProps {
   post: Post
@@ -16,24 +16,11 @@ interface PostDetailProps {
 
 export function PostDetail({ post, replies }: PostDetailProps) {
   const { author } = post
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const router = useRouter()
-
-  const adjustTextareaHeight = () => {
-    const textarea = textareaRef.current
-    if (textarea) {
-      textarea.style.height = 'auto'
-      textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px'
-    }
-  }
 
   const handleBackClick = () => {
     router.back()
   }
-
-  useEffect(() => {
-    adjustTextareaHeight()
-  }, [])
   
   return (
     <div className="min-h-screen">
@@ -132,26 +119,7 @@ export function PostDetail({ post, replies }: PostDetailProps) {
       </article>
 
       {/* リプライ作成フォーム */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-800">
-        <div className="flex gap-3 items-end">
-          <Avatar className="w-10 h-10">
-            <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=current-user" />
-            <AvatarFallback>Me</AvatarFallback>
-          </Avatar>
-          <div className="flex-1 flex items-end gap-3">
-            <textarea
-              ref={textareaRef}
-              placeholder="Post your reply"
-              className="flex-1 bg-transparent text-base outline-none placeholder:text-gray-500 resize-none min-h-[40px] max-h-[120px] overflow-hidden"
-              rows={1}
-              onInput={adjustTextareaHeight}
-            />
-            <button className="px-6 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition font-semibold whitespace-nowrap">
-              Reply
-            </button>
-          </div>
-        </div>
-      </div>
+      <CreatePost parentId={post.id} />
 
       {/* リプライ一覧 */}
       {replies.length > 0 && (
