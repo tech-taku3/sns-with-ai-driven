@@ -14,12 +14,12 @@ import {
 } from "lucide-react";
 import { createPost } from "@/lib/actions/posts";
 
-interface CreatePostProps {
+interface NewPostInputProps {
   className?: string;
   parentId?: string;
 }
 
-export function CreatePost({ className = "", parentId }: CreatePostProps) {
+export function NewPostInput({ className = "", parentId }: NewPostInputProps) {
   const { user, isLoaded } = useUser();
   const [content, setContent] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -142,3 +142,4 @@ export function CreatePost({ className = "", parentId }: CreatePostProps) {
     </div>
   );
 }
+

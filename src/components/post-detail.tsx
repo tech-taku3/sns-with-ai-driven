@@ -7,7 +7,7 @@ import { formatDistance } from 'date-fns/formatDistance'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { CreatePost } from '@/components/timeline/create-post'
+import { NewPostInput } from '@/components/timeline/new-post-input'
 
 interface PostDetailProps {
   post: Post
@@ -119,7 +119,7 @@ export function PostDetail({ post, replies }: PostDetailProps) {
       </article>
 
       {/* リプライ作成フォーム */}
-      <CreatePost parentId={post.id} />
+      <NewPostInput parentId={post.id} />
 
       {/* リプライ一覧 */}
       {replies.length > 0 && (
