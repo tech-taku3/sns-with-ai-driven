@@ -2,6 +2,14 @@ import { verifyWebhook } from '@clerk/nextjs/webhooks'
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// 共通関数: ユーザーが存在するかチェック
+async function isUserExists(clerkId: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { clerkId }
+  })
+  return user !== null
+}
+
 export async function POST(req: NextRequest) {
   try {
     const evt = await verifyWebhook(req)
@@ -100,6 +108,12 @@ export async function POST(req: NextRequest) {
 
       // Update user in database using Prisma
       try {
+        // Check if user exists
+        if (!(await isUserExists(userId))) {
+          console.warn(`User with clerkId ${userId} not found in database, skipping update`)
+          return new Response('User not found in database', { status: 404 })
+        }
+
         const user = await prisma.user.update({
           where: { clerkId: userId },
           data: {
@@ -123,6 +137,17 @@ export async function POST(req: NextRequest) {
 
       // Delete user from database using Prisma
       try {
+        if (!userId) {
+          console.error('No user ID found in user.deleted event')
+          return new Response('No user ID found', { status: 400 })
+        }
+        
+        // Check if user exists
+        if (!(await isUserExists(userId))) {
+          console.warn(`User with clerkId ${userId} not found in database, skipping deletion`)
+          return new Response('User not found in database', { status: 404 })
+        }
+
         await prisma.user.delete({
           where: { clerkId: userId }
         })
