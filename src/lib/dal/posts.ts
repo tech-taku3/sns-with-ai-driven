@@ -17,10 +17,11 @@ export interface Post {
     likes: number
     replies: number
   }
+  isLiked?: boolean
 }
 
-export async function getTimelinePosts(): Promise<Post[]> {
-  return await prisma.post.findMany({
+export async function getTimelinePosts(userId?: string): Promise<Post[]> {
+  const posts = await prisma.post.findMany({
     where: {
       isPublished: true
     },
@@ -41,10 +42,24 @@ export async function getTimelinePosts(): Promise<Post[]> {
           likes: true,
           replies: true
         }
-      }
+      },
+      likes: userId ? {
+        where: {
+          userId: userId
+        },
+        select: {
+          id: true
+        }
+      } : false
     },
     take: 20
   })
+
+  return posts.map(post => ({
+    ...post,
+    isLiked: userId ? (post.likes && post.likes.length > 0) : false,
+    likes: undefined as any
+  }))
 }
 
 export async function getUserPostsByUsername(username: string): Promise<Post[]> {

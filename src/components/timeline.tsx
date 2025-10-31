@@ -6,11 +6,11 @@ let globalProfileImage = "https://picsum.photos/200?random=42";
 export function setGlobalProfileImage(image: string) { globalProfileImage = image; }
 export function getGlobalProfileImage() { return globalProfileImage; }
 
-export function Timeline() {
+export function Timeline({ userId }: { userId?: string }) {
   return (
     <section className="h-screen flex flex-col border-x border-black/10 dark:border-white/10">
       <TimelineHeader />
-      <TimelineContent />
+      <TimelineContent userId={userId} />
     </section>
   );
 }

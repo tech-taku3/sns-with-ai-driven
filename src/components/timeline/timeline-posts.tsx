@@ -20,8 +20,8 @@ function TimelineSkeleton() {
   );
 }
 
-async function TimelinePostsContent() {
-  const posts = await getTimelinePosts();
+async function TimelinePostsContent({ userId }: { userId?: string }) {
+  const posts = await getTimelinePosts(userId);
   
   return (
     <div className="flex flex-col divide-y">
@@ -32,10 +32,10 @@ async function TimelinePostsContent() {
   );
 }
 
-export function TimelinePosts() {
+export function TimelinePosts({ userId }: { userId?: string }) {
   return (
     <Suspense fallback={<TimelineSkeleton />}>
-      <TimelinePostsContent />
+      <TimelinePostsContent userId={userId} />
     </Suspense>
   );
 }

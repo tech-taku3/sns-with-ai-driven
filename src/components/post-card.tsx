@@ -43,8 +43,10 @@ export function PostCard({ post }: PostCardProps) {
             
             <div className="mt-3">
               <PostActions
+                postId={post.id}
                 repliesCount={post._count.replies}
                 likesCount={post._count.likes}
+                isLiked={post.isLiked || false}
               />
             </div>
           </div>
