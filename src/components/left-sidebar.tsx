@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { Home, Search, Bell, Mail, Rocket, Bookmark, Users, Briefcase, Star, Settings, User } from "lucide-react";
+import { useUser, UserButton } from "@clerk/nextjs";
 import { Button } from "./ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 
 export function LeftSidebar() {
+  const { user } = useUser();
+  
   const items = [
     { icon: Home, label: "Home", href: "/" },
     { icon: Search, label: "Explore", href: "/explore" },
@@ -47,19 +50,48 @@ export function LeftSidebar() {
         </div>
         <div className="flex-1 min-h-[8px]" />
         <div>
-          <Link
-            href="/profile"
-            className="flex items-center gap-3 p-3 m-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
-            <Avatar className="h-10 w-10 shrink-0">
-              <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=current-user" alt="me" />
-              <AvatarFallback>me</AvatarFallback>
-            </Avatar>
-            <div className="hidden xl:flex flex-col text-[15px]">
-              <span className="font-bold leading-5">tech_taku</span>
-              <span className="text-gray-500">@TechTaku3</span>
+          {user ? (
+            <div className="flex items-center gap-3 p-3 m-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+              <UserButton 
+                appearance={{
+                  elements: {
+                    avatarBox: "h-10 w-10",
+                    userButtonPopoverCard: "shadow-lg border border-gray-200",
+                    userButtonPopoverActions: "p-2",
+                    userButtonPopoverActionButton: "hover:bg-gray-100 rounded-lg",
+                    userButtonPopoverFooter: "hidden"
+                  }
+                }}
+                userProfileMode="modal"
+                afterSignOutUrl="/"
+              />
+              <div className="hidden xl:flex flex-col text-[15px] flex-1">
+                <span className="font-bold leading-5">
+                  {user.firstName && user.lastName 
+                    ? `${user.firstName} ${user.lastName}` 
+                    : user.username || "User"
+                  }
+                </span>
+                <span className="text-gray-500">
+                  @{user.username || user.emailAddresses[0]?.emailAddress.split('@')[0] || "user"}
+                </span>
+              </div>
             </div>
-          </Link>
+          ) : (
+            <Link
+              href="/sign-in"
+              className="flex items-center gap-3 p-3 m-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              <Avatar className="h-10 w-10 shrink-0">
+                <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=guest" alt="guest" />
+                <AvatarFallback>G</AvatarFallback>
+              </Avatar>
+              <div className="hidden xl:flex flex-col text-[15px]">
+                <span className="font-bold leading-5">ゲスト</span>
+                <span className="text-gray-500">ログインしてください</span>
+              </div>
+            </Link>
+          )}
         </div>
       </div>
     </header>
