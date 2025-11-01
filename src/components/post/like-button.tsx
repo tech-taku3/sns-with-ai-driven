@@ -1,7 +1,7 @@
 "use client";
 
 import { Heart } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useOptimistic } from "react";
 import { toggleLike } from "@/lib/actions/likes";
 
 interface LikeButtonProps {
@@ -20,16 +20,36 @@ export function LikeButton({
     likesCount: initialLikesCount,
   });
 
-  const isLiked = state.isLiked ?? initialIsLiked;
-  const likesCount = state.likesCount ?? initialLikesCount;
+  // 楽観的UI更新
+  const [optimisticLike, setOptimisticLike] = useOptimistic(
+    {
+      isLiked: state.isLiked ?? initialIsLiked,
+      likesCount: state.likesCount ?? initialLikesCount,
+    },
+    (current, newValue: { isLiked: boolean; likesCount: number }) => newValue
+  );
+
+  const handleSubmit = async (formData: FormData) => {
+    // 即座にUIを更新（楽観的）
+    setOptimisticLike({
+      isLiked: !optimisticLike.isLiked,
+      likesCount: optimisticLike.isLiked
+        ? optimisticLike.likesCount - 1
+        : optimisticLike.likesCount + 1,
+    });
+
+    // サーバーアクションを実行
+    await formAction(formData);
+  };
+
+  const { isLiked, likesCount } = optimisticLike;
 
   return (
-    <form action={formAction}>
+    <form action={handleSubmit}>
       <input type="hidden" name="postId" value={postId} />
       <button
         type="submit"
         className="flex items-center gap-1 group"
-        disabled={pending}
         onClick={(e) => e.stopPropagation()}
       >
         <div
