@@ -8,6 +8,7 @@ interface ProfileProps {
     username: string;
     displayName: string;
     profileImageUrl?: string | null | undefined;
+    coverImageUrl?: string | null | undefined;
     bio?: string | null;
     followersCount?: number;
     followingCount?: number;

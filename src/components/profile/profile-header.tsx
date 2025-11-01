@@ -9,6 +9,7 @@ interface ProfileHeaderProps {
     username: string;
     displayName: string;
     profileImageUrl?: string | null | undefined;
+    coverImageUrl?: string | null | undefined;
     bio?: string | null;
     followersCount?: number;
     followingCount?: number;
@@ -23,6 +24,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
     username: "tech_taku",
     displayName: "Tech Taku",
     profileImageUrl: undefined,
+    coverImageUrl: undefined,
     bio: "個人開発者 | AI・Web技術について発信中 | 元シリコンバレーCTO",
     followersCount: 19100,
     followingCount: 495,
@@ -40,7 +42,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
         postsCount={profileUser.postsCount}
       />
       
-      <ProfileBanner />
+      <ProfileBanner coverImageUrl={profileUser.coverImageUrl} />
       
       <div className="relative px-4 pb-0">
         {/* Profile Picture */}

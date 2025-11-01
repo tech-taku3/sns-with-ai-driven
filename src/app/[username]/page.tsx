@@ -59,6 +59,7 @@ export default async function UserProfilePage({ params }: PageProps) {
               username: user.username,
               displayName: user.displayName,
               profileImageUrl: user.profileImageUrl || undefined,
+              coverImageUrl: user.coverImageUrl || undefined,
               bio: user.bio,
               followersCount: user._count.followers,
               followingCount: user._count.following,
