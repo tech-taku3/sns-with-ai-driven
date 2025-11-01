@@ -4,6 +4,8 @@ import { MobileNav } from "@/components/mobile-nav";
 import { Profile } from "@/components/profile";
 import { getUserByUsername } from "@/lib/dal/users";
 import { getUserPostsByUsername } from "@/lib/dal/posts";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
 
 interface PageProps {
   params: { username: string }
@@ -11,9 +13,21 @@ interface PageProps {
 
 export default async function UserProfilePage({ params }: PageProps) {
   const username = decodeURIComponent(params.username)
+  
+  // 現在のユーザーIDを取得
+  const { userId: clerkId } = await auth();
+  let currentUserId: string | undefined;
+  if (clerkId) {
+    const currentUser = await prisma.user.findUnique({
+      where: { clerkId },
+      select: { id: true }
+    });
+    currentUserId = currentUser?.id;
+  }
+  
   const [user, posts] = await Promise.all([
     getUserByUsername(username),
-    getUserPostsByUsername(username)
+    getUserPostsByUsername(username, currentUserId)
   ])
 
   if (!user) {
