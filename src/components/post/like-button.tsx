@@ -49,7 +49,10 @@ export function LikeButton({
       <input type="hidden" name="postId" value={postId} />
       <button
         type="submit"
-        className="flex items-center gap-1 group"
+        className={`flex items-center gap-1 group transition-opacity ${
+          pending ? "opacity-50 cursor-not-allowed" : ""
+        }`}
+        disabled={pending}
         onClick={(e) => e.stopPropagation()}
       >
         <div
