@@ -7,7 +7,7 @@ import { getUserPostsByUsername } from "@/lib/dal/posts";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import EditProfileModal from "../@modal/(.)edit-profile/page";
+import { EditProfileModal } from "@/components/profile/edit-profile-modal";
 
 interface PageProps {
   params: { username: string };
@@ -16,15 +16,22 @@ interface PageProps {
 export default async function EditProfilePage({ params }: PageProps) {
   const username = decodeURIComponent(params.username);
 
-  // 現在のユーザーIDを取得
+  // 認証チェック
   const { userId: clerkId } = await auth();
+  if (!clerkId) {
+    notFound();
+  }
+
   let currentUserId: string | undefined;
-  if (clerkId) {
-    const currentUser = await prisma.user.findUnique({
-      where: { clerkId },
-      select: { id: true },
-    });
-    currentUserId = currentUser?.id;
+  const currentUser = await prisma.user.findUnique({
+    where: { clerkId },
+    select: { id: true, username: true },
+  });
+  currentUserId = currentUser?.id;
+
+  // 自分のプロフィールでない場合はアクセス拒否
+  if (!currentUser || currentUser.username !== username) {
+    notFound();
   }
 
   const [user, posts] = await Promise.all([
@@ -67,7 +74,14 @@ export default async function EditProfilePage({ params }: PageProps) {
         <RightSidebar />
       </div>
       <MobileNav className="fixed bottom-0 left-0 right-0 lg:hidden" />
-      <EditProfileModal />
+      <EditProfileModal
+        user={{
+          displayName: user.displayName,
+          bio: user.bio,
+          profileImageUrl: user.profileImageUrl,
+          coverImageUrl: user.coverImageUrl,
+        }}
+      />
     </div>
   );
 }
