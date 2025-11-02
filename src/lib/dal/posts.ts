@@ -23,7 +23,8 @@ export interface Post {
 export async function getTimelinePosts(userId?: string): Promise<Post[]> {
   const posts = await prisma.post.findMany({
     where: {
-      isPublished: true
+      isPublished: true,
+      parentId: null  // リプライを除外（トップレベルの投稿のみ）
     },
     orderBy: {
       createdAt: 'desc'
@@ -66,7 +67,8 @@ export async function getUserPostsByUsername(username: string, userId?: string):
   const posts = await prisma.post.findMany({
     where: {
       isPublished: true,
-      author: { username }
+      author: { username },
+      parentId: null  // リプライを除外（トップレベルの投稿のみ）
     },
     orderBy: { createdAt: 'desc' },
     include: {
