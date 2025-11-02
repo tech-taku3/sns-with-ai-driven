@@ -6,6 +6,7 @@ import { UserAvatar } from "@/components/shared/user-avatar";
 
 interface ProfileHeaderProps {
   user?: {
+    id?: string;
     username: string;
     displayName: string;
     profileImageUrl?: string | null | undefined;
@@ -16,12 +17,14 @@ interface ProfileHeaderProps {
     postsCount?: number;
     joinDate?: string;
     isVerified?: boolean;
+    isFollowing?: boolean;
   };
   isOwnProfile?: boolean;
 }
 
 export function ProfileHeader({ user, isOwnProfile = false }: ProfileHeaderProps) {
   const defaultUser = {
+    id: undefined,
     username: "tech_taku",
     displayName: "Tech Taku",
     profileImageUrl: undefined,
@@ -31,7 +34,8 @@ export function ProfileHeader({ user, isOwnProfile = false }: ProfileHeaderProps
     followingCount: 495,
     postsCount: 7090,
     joinDate: "August 2021",
-    isVerified: true
+    isVerified: true,
+    isFollowing: false
   };
   
   const profileUser = user || defaultUser;
@@ -56,7 +60,12 @@ export function ProfileHeader({ user, isOwnProfile = false }: ProfileHeaderProps
           />
         </div>
 
-        <ProfileActions isOwnProfile={isOwnProfile} />
+        <ProfileActions 
+          isOwnProfile={isOwnProfile}
+          targetUserId={profileUser.id}
+          isFollowing={profileUser.isFollowing}
+          followersCount={profileUser.followersCount}
+        />
 
         <ProfileInfo user={profileUser} />
       </div>

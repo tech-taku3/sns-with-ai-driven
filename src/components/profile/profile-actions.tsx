@@ -4,23 +4,28 @@ import { MoreHorizontal, MessageCircle, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { FollowButton } from "./follow-button";
 
 interface ProfileActionsProps {
   isOwnProfile?: boolean;
+  targetUserId?: string;
+  isFollowing?: boolean;
+  followersCount?: number;
   onMoreClick?: () => void;
   onMessageClick?: () => void;
   onShareClick?: () => void;
-  onSubscribeClick?: () => void;
   onEditProfileClick?: () => void;
   className?: string;
 }
 
 export function ProfileActions({
   isOwnProfile = false,
+  targetUserId,
+  isFollowing = false,
+  followersCount = 0,
   onMoreClick,
   onMessageClick,
   onShareClick,
-  onSubscribeClick,
   onEditProfileClick,
   className = ""
 }: ProfileActionsProps) {
@@ -57,14 +62,13 @@ export function ProfileActions({
             Edit Profile
           </Button>
         </Link>
-      ) : (
-        <Button 
-          className="bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
-          onClick={onSubscribeClick}
-        >
-          Subscribe
-        </Button>
-      )}
+      ) : targetUserId ? (
+        <FollowButton
+          targetUserId={targetUserId}
+          initialIsFollowing={isFollowing}
+          initialFollowersCount={followersCount}
+        />
+      ) : null}
     </div>
   );
 }

@@ -12,10 +12,11 @@ export interface UserProfile {
     followers: number
     following: number
   }
+  isFollowing?: boolean
 }
 
-export async function getUserByUsername(username: string): Promise<UserProfile | null> {
-  return await prisma.user.findUnique({
+export async function getUserByUsername(username: string, currentUserId?: string): Promise<UserProfile | null> {
+  const user = await prisma.user.findUnique({
     where: { username },
     select: {
       id: true,
@@ -30,9 +31,28 @@ export async function getUserByUsername(username: string): Promise<UserProfile |
           followers: true,
           following: true
         }
-      }
+      },
+      followers: currentUserId ? {
+        where: {
+          followerId: currentUserId
+        },
+        select: {
+          id: true
+        }
+      } : false
     }
   })
+
+  if (!user) {
+    return null
+  }
+
+  const { followers, ...userWithoutFollowers } = user as any
+
+  return {
+    ...userWithoutFollowers,
+    isFollowing: currentUserId ? (followers && followers.length > 0) : false
+  }
 }
 
 

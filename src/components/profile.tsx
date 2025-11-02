@@ -5,6 +5,7 @@ import type { Post } from "@/lib/dal/posts";
 
 interface ProfileProps {
   user?: {
+    id?: string;
     username: string;
     displayName: string;
     profileImageUrl?: string | null | undefined;
@@ -15,6 +16,7 @@ interface ProfileProps {
     postsCount?: number;
     joinDate?: string;
     isVerified?: boolean;
+    isFollowing?: boolean;
   };
   posts?: Post[];
   isOwnProfile?: boolean;

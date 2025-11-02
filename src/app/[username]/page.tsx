@@ -26,7 +26,7 @@ export default async function UserProfilePage({ params }: PageProps) {
   }
   
   const [user, posts] = await Promise.all([
-    getUserByUsername(username),
+    getUserByUsername(username, currentUserId),
     getUserPostsByUsername(username, currentUserId)
   ])
 
@@ -58,6 +58,7 @@ export default async function UserProfilePage({ params }: PageProps) {
         <main className="flex-1 lg:flex-none lg:w-[600px] lg:min-w-[600px]">
           <Profile 
             user={{
+              id: user.id,
               username: user.username,
               displayName: user.displayName,
               profileImageUrl: user.profileImageUrl || undefined,
@@ -67,7 +68,8 @@ export default async function UserProfilePage({ params }: PageProps) {
               followingCount: user._count.following,
               postsCount: user._count.posts,
               joinDate: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-              isVerified: false
+              isVerified: false,
+              isFollowing: user.isFollowing || false
             }}
             posts={posts}
             isOwnProfile={isOwnProfile}
