@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useEffect } from "react";
+import { useActionState } from "react";
+import { updateProfile } from "@/lib/actions/users";
 
 interface EditProfileModalProps {
   user?: {
@@ -16,6 +18,15 @@ interface EditProfileModalProps {
 
 export function EditProfileModal({ user }: EditProfileModalProps) {
   const router = useRouter();
+
+  const [state, formAction, pending] = useActionState(updateProfile, {});
+
+  // 成功時にモーダルを閉じる
+  useEffect(() => {
+    if (state.message) {
+      router.back();
+    }
+  }, [state.message, router]);
 
   // ESCキーでモーダルを閉じる
   useEffect(() => {
@@ -38,11 +49,12 @@ export function EditProfileModal({ user }: EditProfileModalProps) {
       />
 
       {/* モーダルコンテンツ */}
-      <div className="relative bg-white dark:bg-gray-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl m-4">
+      <form action={formAction} className="relative bg-white dark:bg-gray-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl m-4">
         {/* ヘッダー */}
         <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <button
+              type="button"
               onClick={() => router.back()}
               className="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
             >
@@ -51,12 +63,23 @@ export function EditProfileModal({ user }: EditProfileModalProps) {
             <h2 className="text-xl font-bold">Edit Profile</h2>
           </div>
           <Button
+            type="submit"
             size="sm"
             className="bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 rounded-full px-4"
+            disabled={pending}
           >
-            Save
+            {pending ? "保存中..." : "Save"}
           </Button>
         </div>
+
+        {/* エラーメッセージ */}
+        {state.error && (
+          <div className="px-6 pt-4">
+            <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
+              {state.error}
+            </div>
+          </div>
+        )}
 
         {/* コンテンツ */}
         <div className="p-6">
@@ -107,9 +130,12 @@ export function EditProfileModal({ user }: EditProfileModalProps) {
             <label className="block text-sm font-medium mb-2">Name</label>
             <input
               type="text"
+              name="displayName"
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Your name"
               defaultValue={user?.displayName || ""}
+              required
+              disabled={pending}
             />
           </div>
 
@@ -117,14 +143,16 @@ export function EditProfileModal({ user }: EditProfileModalProps) {
           <div className="mb-6">
             <label className="block text-sm font-medium mb-2">Bio</label>
             <textarea
+              name="bio"
               rows={4}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               placeholder="Tell us about yourself"
               defaultValue={user?.bio || ""}
+              disabled={pending}
             />
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
