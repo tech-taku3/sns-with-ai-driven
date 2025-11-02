@@ -48,6 +48,8 @@ export default async function UserProfilePage({ params }: PageProps) {
     )
   }
 
+  // 自分自身のプロフィールかどうかを判定
+  const isOwnProfile = currentUserId === user.id;
 
   return (
     <div className="flex justify-center min-h-screen">
@@ -68,6 +70,7 @@ export default async function UserProfilePage({ params }: PageProps) {
               isVerified: false
             }}
             posts={posts}
+            isOwnProfile={isOwnProfile}
           />
         </main>
         <RightSidebar />

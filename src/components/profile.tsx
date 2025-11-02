@@ -17,12 +17,13 @@ interface ProfileProps {
     isVerified?: boolean;
   };
   posts?: Post[];
+  isOwnProfile?: boolean;
 }
 
-export function Profile({ user, posts }: ProfileProps) {
+export function Profile({ user, posts, isOwnProfile = false }: ProfileProps) {
   return (
     <section className="min-h-screen border-x border-gray-200 dark:border-gray-800">
-      <ProfileHeader user={user} />
+      <ProfileHeader user={user} isOwnProfile={isOwnProfile} />
       <ProfileTabs />
       <ProfileContent posts={posts} />
     </section>

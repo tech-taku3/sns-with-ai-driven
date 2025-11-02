@@ -17,9 +17,10 @@ interface ProfileHeaderProps {
     joinDate?: string;
     isVerified?: boolean;
   };
+  isOwnProfile?: boolean;
 }
 
-export function ProfileHeader({ user }: ProfileHeaderProps) {
+export function ProfileHeader({ user, isOwnProfile = false }: ProfileHeaderProps) {
   const defaultUser = {
     username: "tech_taku",
     displayName: "Tech Taku",
@@ -55,7 +56,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
           />
         </div>
 
-        <ProfileActions />
+        <ProfileActions isOwnProfile={isOwnProfile} />
 
         <ProfileInfo user={profileUser} />
       </div>

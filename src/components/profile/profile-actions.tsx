@@ -4,18 +4,22 @@ import { MoreHorizontal, MessageCircle, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ProfileActionsProps {
+  isOwnProfile?: boolean;
   onMoreClick?: () => void;
   onMessageClick?: () => void;
   onShareClick?: () => void;
   onSubscribeClick?: () => void;
+  onEditProfileClick?: () => void;
   className?: string;
 }
 
 export function ProfileActions({
+  isOwnProfile = false,
   onMoreClick,
   onMessageClick,
   onShareClick,
   onSubscribeClick,
+  onEditProfileClick,
   className = ""
 }: ProfileActionsProps) {
   return (
@@ -41,12 +45,21 @@ export function ProfileActions({
         <Share className="h-5 w-5" />
       </button>
       
-      <Button 
-        className="bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
-        onClick={onSubscribeClick}
-      >
-        Subscribe
-      </Button>
+      {isOwnProfile ? (
+        <Button 
+          className="bg-transparent border border-gray-300 dark:border-gray-700 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+          onClick={onEditProfileClick}
+        >
+          Edit Profile
+        </Button>
+      ) : (
+        <Button 
+          className="bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+          onClick={onSubscribeClick}
+        >
+          Subscribe
+        </Button>
+      )}
     </div>
   );
 }
