@@ -2,6 +2,8 @@
 
 import { MoreHorizontal, MessageCircle, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 interface ProfileActionsProps {
   isOwnProfile?: boolean;
@@ -22,6 +24,8 @@ export function ProfileActions({
   onEditProfileClick,
   className = ""
 }: ProfileActionsProps) {
+  const params = useParams();
+  const username = params.username as string;
   return (
     <div className={`flex justify-end gap-2 pt-4 ${className}`}>
       <button 
@@ -46,12 +50,13 @@ export function ProfileActions({
       </button>
       
       {isOwnProfile ? (
-        <Button 
-          className="bg-transparent border border-gray-300 dark:border-gray-700 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
-          onClick={onEditProfileClick}
-        >
-          Edit Profile
-        </Button>
+        <Link href={`/${username}/edit-profile`}>
+          <Button 
+            className="bg-transparent border border-gray-300 dark:border-gray-700 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
+            Edit Profile
+          </Button>
+        </Link>
       ) : (
         <Button 
           className="bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
