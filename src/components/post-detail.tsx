@@ -192,6 +192,7 @@ function ReplyCard({ reply }: { reply: Post }) {
                 <div className="rounded-full p-1.5 group-hover:bg-blue-500/10">
                   <MessageCircleIcon className="h-4 w-4 group-hover:text-blue-500" />
                 </div>
+                <span className="text-xs group-hover:text-blue-500">{reply._count.replies || 0}</span>
               </button>
               <button 
                 className="flex items-center gap-1 group"
