@@ -35,7 +35,11 @@ export async function POST(req: NextRequest) {
       console.log('Primary email ID:', primary_email_address_id)
 
       // Get the primary email address
-      const primaryEmail = email_addresses?.find((email: any) => email.id === primary_email_address_id)
+      interface EmailAddress {
+        id: string;
+        email_address: string;
+      }
+      const primaryEmail = email_addresses?.find((email: EmailAddress) => email.id === primary_email_address_id)
       const email = primaryEmail?.email_address || email_addresses?.[0]?.email_address
 
       // テストイベントの場合はメールアドレスがないため、ダミーのメールを使用
@@ -97,7 +101,11 @@ export async function POST(req: NextRequest) {
       } = evt.data
 
       // Get the primary email address
-      const primaryEmail = email_addresses?.find((email: any) => email.id === primary_email_address_id)
+      interface EmailAddress {
+        id: string;
+        email_address: string;
+      }
+      const primaryEmail = email_addresses?.find((email: EmailAddress) => email.id === primary_email_address_id)
       const email = primaryEmail?.email_address || email_addresses?.[0]?.email_address
 
       if (!email) {

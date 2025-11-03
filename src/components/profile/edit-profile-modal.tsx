@@ -7,6 +7,7 @@ import { useEffect, useState, useRef } from "react";
 import { useActionState } from "react";
 import { updateProfile } from "@/lib/actions/users";
 import { uploadImage } from "@/lib/actions/upload";
+import Image from "next/image";
 
 interface EditProfileModalProps {
   user?: {
@@ -153,10 +154,12 @@ export function EditProfileModal({ user }: EditProfileModalProps) {
             <label className="block text-sm font-medium mb-2">Cover Image</label>
             <div className="relative h-48 rounded-lg overflow-hidden group cursor-pointer" onClick={() => coverInputRef.current?.click()}>
               {coverPreview ? (
-                <img 
+                <Image 
                   src={coverPreview} 
                   alt="Cover" 
-                  className="w-full h-full object-cover"
+                  className="object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 672px"
                 />
               ) : (
                 <div className="bg-gradient-to-r from-blue-400 to-purple-500 h-full">
@@ -191,10 +194,12 @@ export function EditProfileModal({ user }: EditProfileModalProps) {
                 onClick={() => profileInputRef.current?.click()}
               >
                 {profilePreview ? (
-                  <img 
+                  <Image 
                     src={profilePreview} 
                     alt="Profile" 
-                    className="w-full h-full object-cover"
+                    className="object-cover"
+                    fill
+                    sizes="96px"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-300 dark:bg-gray-600" />

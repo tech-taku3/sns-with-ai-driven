@@ -23,12 +23,11 @@ export default async function EditProfilePage({ params }: PageProps) {
     notFound();
   }
 
-  let currentUserId: string | undefined;
   const currentUser = await prisma.user.findUnique({
     where: { clerkId },
     select: { id: true, username: true },
   });
-  currentUserId = currentUser?.id;
+  const currentUserId = currentUser?.id;
 
   // 自分のプロフィールでない場合はアクセス拒否
   if (!currentUser || currentUser.username !== username) {

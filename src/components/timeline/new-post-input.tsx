@@ -24,7 +24,7 @@ type FormState = ActionResult<{ postId: string }> & {
 };
 
 export function NewPostInput({ className = "", parentId }: NewPostInputProps) {
-  const { user, isLoaded } = useUser();
+  const { user } = useUser();
   const formRef = useRef<HTMLFormElement>(null);
 
   const initialState: FormState = {
