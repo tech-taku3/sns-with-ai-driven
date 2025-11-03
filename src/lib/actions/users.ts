@@ -16,6 +16,8 @@ export async function updateProfile(
   try {
     const displayName = formData.get("displayName") as string;
     const bio = formData.get("bio") as string;
+    const profileImageUrl = formData.get("profileImageUrl") as string;
+    const coverImageUrl = formData.get("coverImageUrl") as string;
 
     if (!displayName?.trim()) {
       return { error: "名前を入力してください" };
@@ -42,6 +44,8 @@ export async function updateProfile(
       data: {
         displayName: displayName.trim(),
         bio: bio.trim() || null,
+        ...(profileImageUrl && { profileImageUrl }),
+        ...(coverImageUrl && { coverImageUrl }),
       },
     });
 
