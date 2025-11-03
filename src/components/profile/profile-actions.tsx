@@ -2,22 +2,35 @@
 
 import { MoreHorizontal, MessageCircle, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { FollowButton } from "./follow-button";
 
 interface ProfileActionsProps {
+  isOwnProfile?: boolean;
+  targetUserId?: string;
+  isFollowing?: boolean;
+  followersCount?: number;
   onMoreClick?: () => void;
   onMessageClick?: () => void;
   onShareClick?: () => void;
-  onSubscribeClick?: () => void;
+  onEditProfileClick?: () => void;
   className?: string;
 }
 
 export function ProfileActions({
+  isOwnProfile = false,
+  targetUserId,
+  isFollowing = false,
+  followersCount = 0,
   onMoreClick,
   onMessageClick,
   onShareClick,
-  onSubscribeClick,
+  onEditProfileClick,
   className = ""
 }: ProfileActionsProps) {
+  const params = useParams();
+  const username = params.username as string;
   return (
     <div className={`flex justify-end gap-2 pt-4 ${className}`}>
       <button 
@@ -41,12 +54,21 @@ export function ProfileActions({
         <Share className="h-5 w-5" />
       </button>
       
-      <Button 
-        className="bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
-        onClick={onSubscribeClick}
-      >
-        Subscribe
-      </Button>
+      {isOwnProfile ? (
+        <Link href={`/${username}/edit-profile`}>
+          <Button 
+            className="bg-transparent border border-gray-300 dark:border-gray-700 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
+            Edit Profile
+          </Button>
+        </Link>
+      ) : targetUserId ? (
+        <FollowButton
+          targetUserId={targetUserId}
+          initialIsFollowing={isFollowing}
+          initialFollowersCount={followersCount}
+        />
+      ) : null}
     </div>
   );
 }

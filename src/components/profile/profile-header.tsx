@@ -6,29 +6,36 @@ import { UserAvatar } from "@/components/shared/user-avatar";
 
 interface ProfileHeaderProps {
   user?: {
+    id?: string;
     username: string;
     displayName: string;
     profileImageUrl?: string | null | undefined;
+    coverImageUrl?: string | null | undefined;
     bio?: string | null;
     followersCount?: number;
     followingCount?: number;
     postsCount?: number;
     joinDate?: string;
     isVerified?: boolean;
+    isFollowing?: boolean;
   };
+  isOwnProfile?: boolean;
 }
 
-export function ProfileHeader({ user }: ProfileHeaderProps) {
+export function ProfileHeader({ user, isOwnProfile = false }: ProfileHeaderProps) {
   const defaultUser = {
+    id: undefined,
     username: "tech_taku",
     displayName: "Tech Taku",
     profileImageUrl: undefined,
+    coverImageUrl: undefined,
     bio: "個人開発者 | AI・Web技術について発信中 | 元シリコンバレーCTO",
     followersCount: 19100,
     followingCount: 495,
     postsCount: 7090,
     joinDate: "August 2021",
-    isVerified: true
+    isVerified: true,
+    isFollowing: false
   };
   
   const profileUser = user || defaultUser;
@@ -40,7 +47,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
         postsCount={profileUser.postsCount}
       />
       
-      <ProfileBanner />
+      <ProfileBanner coverImageUrl={profileUser.coverImageUrl} />
       
       <div className="relative px-4 pb-0">
         {/* Profile Picture */}
@@ -53,7 +60,12 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
           />
         </div>
 
-        <ProfileActions />
+        <ProfileActions 
+          isOwnProfile={isOwnProfile}
+          targetUserId={profileUser.id}
+          isFollowing={profileUser.isFollowing}
+          followersCount={profileUser.followersCount}
+        />
 
         <ProfileInfo user={profileUser} />
       </div>

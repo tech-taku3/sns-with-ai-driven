@@ -19,7 +19,13 @@ export function LeftSidebar() {
     { icon: Briefcase, label: "Jobs", href: "/jobs" },
     { icon: Users, label: "Communities", href: "/communities" },
     { icon: Star, label: "Premium", href: "/premium" },
-    { icon: User, label: "Profile", href: "/profile" },
+    { 
+      icon: User, 
+      label: "Profile", 
+      href: user?.username 
+        ? `/${user.username}` 
+        : "/profile" 
+    },
     { icon: Settings, label: "More", href: "/more" },
   ];
 

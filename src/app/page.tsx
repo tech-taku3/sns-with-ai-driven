@@ -2,14 +2,27 @@ import { LeftSidebar } from "@/components/left-sidebar";
 import { Timeline } from "@/components/timeline";
 import { RightSidebar } from "@/components/right-sidebar";
 import { MobileNav } from "@/components/mobile-nav";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
 
-export default function Home() {
+export default async function Home() {
+  const { userId: clerkId } = await auth();
+  
+  let userId: string | undefined;
+  if (clerkId) {
+    const user = await prisma.user.findUnique({
+      where: { clerkId },
+      select: { id: true }
+    });
+    userId = user?.id;
+  }
+
   return (
     <div className="flex justify-center min-h-screen">
       <div className="flex w-full lg:w-[1265px] mx-auto">
         <LeftSidebar />
         <main className="flex-1 lg:flex-none lg:w-[600px] lg:min-w-[600px] border-x border-gray-200 dark:border-gray-800">
-          <Timeline />
+          <Timeline userId={userId} />
         </main>
         <RightSidebar />
       </div>

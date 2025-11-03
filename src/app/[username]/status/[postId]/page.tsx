@@ -13,7 +13,7 @@ interface PageProps {
 }
 
 export default async function PostDetailPage({ params }: PageProps) {
-  const { username, postId } = params
+  const { username, postId } = await params
   
   const [post, replies] = await Promise.all([
     getPostById(postId),

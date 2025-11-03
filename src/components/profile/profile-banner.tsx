@@ -1,11 +1,26 @@
+import Image from "next/image";
+
 interface ProfileBannerProps {
+  coverImageUrl?: string | null;
   className?: string;
 }
 
-export function ProfileBanner({ className = "" }: ProfileBannerProps) {
+export function ProfileBanner({ coverImageUrl, className = "" }: ProfileBannerProps) {
   return (
-    <div className={`relative h-48 bg-gradient-to-r from-blue-400 to-purple-500 ${className}`}>
-      <div className="absolute inset-0 bg-black/20"></div>
+    <div className={`relative h-48 ${className}`}>
+      {coverImageUrl ? (
+        <Image
+          src={coverImageUrl}
+          alt="Cover image"
+          fill
+          className="object-cover"
+          priority
+        />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500">
+          <div className="absolute inset-0 bg-black/20"></div>
+        </div>
+      )}
     </div>
   );
 }

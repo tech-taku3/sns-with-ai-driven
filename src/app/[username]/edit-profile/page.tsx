@@ -6,47 +6,42 @@ import { getUserByUsername } from "@/lib/dal/users";
 import { getUserPostsByUsername } from "@/lib/dal/posts";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import { notFound } from "next/navigation";
+import { EditProfileModal } from "@/components/profile/edit-profile-modal";
 
 interface PageProps {
-  params: { username: string }
+  params: { username: string };
 }
 
-export default async function UserProfilePage({ params }: PageProps) {
+export default async function EditProfilePage({ params }: PageProps) {
   const { username: rawUsername } = await params;
-  const username = decodeURIComponent(rawUsername)
-  
-  // 現在のユーザーIDを取得
+  const username = decodeURIComponent(rawUsername);
+
+  // 認証チェック
   const { userId: clerkId } = await auth();
-  let currentUserId: string | undefined;
-  if (clerkId) {
-    const currentUser = await prisma.user.findUnique({
-      where: { clerkId },
-      select: { id: true }
-    });
-    currentUserId = currentUser?.id;
+  if (!clerkId) {
+    notFound();
   }
-  
+
+  let currentUserId: string | undefined;
+  const currentUser = await prisma.user.findUnique({
+    where: { clerkId },
+    select: { id: true, username: true },
+  });
+  currentUserId = currentUser?.id;
+
+  // 自分のプロフィールでない場合はアクセス拒否
+  if (!currentUser || currentUser.username !== username) {
+    notFound();
+  }
+
   const [user, posts] = await Promise.all([
     getUserByUsername(username, currentUserId),
-    getUserPostsByUsername(username, currentUserId)
-  ])
+    getUserPostsByUsername(username, currentUserId),
+  ]);
 
   if (!user) {
-    return (
-      <div className="flex justify-center min-h-screen">
-        <div className="flex w-full lg:w-[1265px] mx-auto">
-          <LeftSidebar />
-          <main className="flex-1 lg:flex-none lg:w-[600px] lg:min-w-[600px] border-x border-gray-200 dark:border-gray-800">
-            <div className="min-w-0 p-8">
-              <h1 className="text-2xl font-bold">User not found</h1>
-              <p className="text-black/60 dark:text-white/60">@{username} は存在しません。</p>
-            </div>
-          </main>
-          <RightSidebar />
-        </div>
-        <MobileNav className="fixed bottom-0 left-0 right-0 lg:hidden" />
-      </div>
-    )
+    notFound();
   }
 
   // 自分自身のプロフィールかどうかを判定
@@ -57,7 +52,7 @@ export default async function UserProfilePage({ params }: PageProps) {
       <div className="flex w-full lg:w-[1265px] mx-auto">
         <LeftSidebar />
         <main className="flex-1 lg:flex-none lg:w-[600px] lg:min-w-[600px]">
-          <Profile 
+          <Profile
             user={{
               id: user.id,
               username: user.username,
@@ -68,9 +63,12 @@ export default async function UserProfilePage({ params }: PageProps) {
               followersCount: user._count.followers,
               followingCount: user._count.following,
               postsCount: user._count.posts,
-              joinDate: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+              joinDate: new Date().toLocaleDateString("en-US", {
+                month: "long",
+                year: "numeric",
+              }),
               isVerified: false,
-              isFollowing: user.isFollowing || false
+              isFollowing: user.isFollowing || false,
             }}
             posts={posts}
             isOwnProfile={isOwnProfile}
@@ -79,12 +77,19 @@ export default async function UserProfilePage({ params }: PageProps) {
         <RightSidebar />
       </div>
       <MobileNav className="fixed bottom-0 left-0 right-0 lg:hidden" />
+      <EditProfileModal
+        user={{
+          displayName: user.displayName,
+          bio: user.bio,
+          profileImageUrl: user.profileImageUrl,
+          coverImageUrl: user.coverImageUrl,
+        }}
+      />
     </div>
-  )
+  );
 }
 
 export async function generateStaticParams() {
-  return []
+  return [];
 }
-
 

@@ -3,29 +3,31 @@
 import { 
   MessageCircle,
   Repeat,
-  Heart,
   BarChart3,
   Bookmark,
   Share2
 } from "lucide-react";
+import { LikeButton } from "@/components/post/like-button";
 
 interface PostActionsProps {
+  postId: string;
   repliesCount?: number;
   likesCount?: number;
+  isLiked?: boolean;
   onReply?: () => void;
   onRetweet?: () => void;
-  onLike?: () => void;
   onShare?: () => void;
   onBookmark?: () => void;
   onAnalytics?: () => void;
 }
 
 export function PostActions({
+  postId,
   repliesCount = 0,
   likesCount = 0,
+  isLiked = false,
   onReply,
   onRetweet,
-  onLike,
   onShare,
   onBookmark,
   onAnalytics
@@ -58,18 +60,11 @@ export function PostActions({
         <span className="text-xs group-hover:text-green-500">0</span>
       </button>
       
-      <button
-        className="flex items-center gap-1 group"
-        onClick={(e) => {
-          e.stopPropagation();
-          onLike?.();
-        }}
-      >
-        <div className="rounded-full p-1.5 group-hover:bg-pink-500/10">
-          <Heart className="h-4 w-4 group-hover:text-pink-500" />
-        </div>
-        <span className="text-xs group-hover:text-pink-500">{likesCount}</span>
-      </button>
+      <LikeButton
+        postId={postId}
+        initialLikesCount={likesCount}
+        initialIsLiked={isLiked}
+      />
       
       <button
         className="flex items-center gap-1 group"
