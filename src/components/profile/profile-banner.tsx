@@ -13,6 +13,7 @@ export function ProfileBanner({ coverImageUrl, className = "" }: ProfileBannerPr
           src={coverImageUrl}
           alt="Cover image"
           fill
+          sizes="600px"
           className="object-cover"
           priority
         />
