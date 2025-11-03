@@ -12,7 +12,8 @@ interface PageProps {
 }
 
 export default async function UserProfilePage({ params }: PageProps) {
-  const username = decodeURIComponent(params.username)
+  const { username: rawUsername } = await params;
+  const username = decodeURIComponent(rawUsername)
   
   // 現在のユーザーIDを取得
   const { userId: clerkId } = await auth();

@@ -14,7 +14,8 @@ interface PageProps {
 }
 
 export default async function EditProfilePage({ params }: PageProps) {
-  const username = decodeURIComponent(params.username);
+  const { username: rawUsername } = await params;
+  const username = decodeURIComponent(rawUsername);
 
   // 認証チェック
   const { userId: clerkId } = await auth();
