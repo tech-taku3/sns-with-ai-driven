@@ -6,16 +6,13 @@ import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 
 export default async function Home() {
-  const { userId: clerkId } = await auth();
+  const { userId: clerkId } = await auth()
   
-  let userId: string | undefined;
-  if (clerkId) {
-    const user = await prisma.user.findUnique({
-      where: { clerkId },
-      select: { id: true }
-    });
-    userId = user?.id;
-  }
+  const user = clerkId ? await prisma.user.findUnique({
+    where: { clerkId },
+    select: { id: true }
+  }) : null
+  const userId = user?.id
 
   return (
     <div className="flex justify-center min-h-screen">

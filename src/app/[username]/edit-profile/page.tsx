@@ -87,8 +87,3 @@ export default async function EditProfilePage({ params }: PageProps) {
     </div>
   );
 }
-
-export async function generateStaticParams() {
-  return [];
-}
-

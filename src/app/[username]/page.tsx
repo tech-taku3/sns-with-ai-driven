@@ -16,15 +16,12 @@ export default async function UserProfilePage({ params }: PageProps) {
   const username = decodeURIComponent(rawUsername)
   
   // 現在のユーザーIDを取得
-  const { userId: clerkId } = await auth();
-  let currentUserId: string | undefined;
-  if (clerkId) {
-    const currentUser = await prisma.user.findUnique({
-      where: { clerkId },
-      select: { id: true }
-    });
-    currentUserId = currentUser?.id;
-  }
+  const { userId: clerkId } = await auth()
+  const currentUser = clerkId ? await prisma.user.findUnique({
+    where: { clerkId },
+    select: { id: true }
+  }) : null
+  const currentUserId = currentUser?.id
   
   const [user, posts] = await Promise.all([
     getUserByUsername(username, currentUserId),
@@ -82,9 +79,3 @@ export default async function UserProfilePage({ params }: PageProps) {
     </div>
   )
 }
-
-export async function generateStaticParams() {
-  return []
-}
-
-

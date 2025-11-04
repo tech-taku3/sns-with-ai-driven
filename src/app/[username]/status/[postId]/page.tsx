@@ -44,7 +44,3 @@ export default async function PostDetailPage({ params }: PageProps) {
     </div>
   )
 }
-
-export async function generateStaticParams() {
-  return []
-}
