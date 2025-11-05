@@ -13,11 +13,6 @@ export async function uploadImage(
   formData: FormData
 ): Promise<UploadState> {
   try {
-    // Supabaseクライアントのチェック
-    if (!supabaseAdmin) {
-      return { error: "Supabaseが設定されていません" };
-    }
-
     // 認証チェック
     const { userId: clerkId } = await auth();
     if (!clerkId) {
