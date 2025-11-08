@@ -45,22 +45,29 @@ export function FollowButton({
   const { isFollowing } = optimisticFollow;
 
   return (
-    <form action={handleSubmit}>
-      <input type="hidden" name="targetUserId" value={targetUserId} />
-      <Button
-        type="submit"
-        className={`rounded-full px-4 transition-opacity ${
-          pending ? "opacity-50 cursor-not-allowed" : ""
-        } ${
-          isFollowing
-            ? "bg-transparent border border-gray-300 dark:border-gray-700 text-black dark:text-white hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 dark:hover:border-red-700 hover:text-red-600 dark:hover:text-red-400"
-            : "bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
-        }`}
-        disabled={pending}
-      >
-        {isFollowing ? "Following" : "Follow"}
-      </Button>
-    </form>
+    <div className="relative">
+      <form action={handleSubmit}>
+        <input type="hidden" name="targetUserId" value={targetUserId} />
+        <Button
+          type="submit"
+          className={`rounded-full px-4 transition-opacity ${
+            pending ? "opacity-50 cursor-not-allowed" : ""
+          } ${
+            isFollowing
+              ? "bg-transparent border border-gray-300 dark:border-gray-700 text-black dark:text-white hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 dark:hover:border-red-700 hover:text-red-600 dark:hover:text-red-400"
+              : "bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+          }`}
+          disabled={pending}
+        >
+          {isFollowing ? "Following" : "Follow"}
+        </Button>
+      </form>
+      {state.error && (
+        <div className="absolute top-full left-0 mt-2 px-3 py-2 bg-red-500 text-white text-sm rounded shadow-lg whitespace-nowrap z-10">
+          {state.error}
+        </div>
+      )}
+    </div>
   );
 }
 

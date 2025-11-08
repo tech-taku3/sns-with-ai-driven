@@ -28,6 +28,7 @@ export function EditProfileModal({ user }: EditProfileModalProps) {
   const [profilePreview, setProfilePreview] = useState<string | null>(user?.profileImageUrl || null);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingProfile, setUploadingProfile] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   // 成功時にモーダルを閉じる
   useEffect(() => {
@@ -58,8 +59,11 @@ export function EditProfileModal({ user }: EditProfileModalProps) {
 
     if (result.url) {
       setCoverPreview(result.url);
+      setUploadError(null); // 成功時はエラーをクリア
     } else if (result.error) {
-      alert(result.error);
+      setUploadError(result.error);
+      // 5秒後にエラーメッセージを自動で消す
+      setTimeout(() => setUploadError(null), 5000);
     }
   };
 
@@ -85,8 +89,11 @@ export function EditProfileModal({ user }: EditProfileModalProps) {
 
     if (result.url) {
       setProfilePreview(result.url);
+      setUploadError(null); // 成功時はエラーをクリア
     } else if (result.error) {
-      alert(result.error);
+      setUploadError(result.error);
+      // 5秒後にエラーメッセージを自動で消す
+      setTimeout(() => setUploadError(null), 5000);
     }
   };
 
@@ -135,10 +142,10 @@ export function EditProfileModal({ user }: EditProfileModalProps) {
         </div>
 
         {/* エラーメッセージ */}
-        {state.error && (
+        {(state.error || uploadError) && (
           <div className="px-6 pt-4">
             <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
-              {state.error}
+              {state.error || uploadError}
             </div>
           </div>
         )}
