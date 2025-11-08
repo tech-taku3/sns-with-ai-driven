@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { profileUpdateRateLimit } from "@/lib/rate-limit";
 
 export type UpdateProfileState = {
   message?: string;
@@ -27,6 +28,12 @@ export async function updateProfile(
     const { userId: clerkId } = await auth();
     if (!clerkId) {
       return { error: "認証が必要です" };
+    }
+
+    // レート制限チェック
+    const { success: rateLimitSuccess } = await profileUpdateRateLimit.limit(clerkId);
+    if (!rateLimitSuccess) {
+      return { error: "プロフィール更新の上限に達しました。しばらくしてからお試しください。" };
     }
 
     // ユーザー情報の取得

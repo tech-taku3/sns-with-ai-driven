@@ -2,6 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { uploadRateLimit } from "@/lib/rate-limit";
 
 export type UploadState = {
   url?: string;
@@ -17,6 +18,12 @@ export async function uploadImage(
     const { userId: clerkId } = await auth();
     if (!clerkId) {
       return { error: "認証が必要です" };
+    }
+
+    // レート制限チェック
+    const { success: rateLimitSuccess } = await uploadRateLimit.limit(clerkId);
+    if (!rateLimitSuccess) {
+      return { error: "アップロードの上限に達しました。しばらくしてからお試しください。" };
     }
 
     const file = formData.get("file") as File;

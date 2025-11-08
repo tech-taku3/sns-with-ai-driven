@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { postRateLimit } from "@/lib/rate-limit";
 
 export interface CreatePostInput {
   content: string;
@@ -30,6 +31,15 @@ export async function createPost(
       return {
         success: false,
         error: "認証が必要です。ログインしてください。",
+      };
+    }
+
+    // レート制限チェック
+    const { success: rateLimitSuccess } = await postRateLimit.limit(clerkId);
+    if (!rateLimitSuccess) {
+      return {
+        success: false,
+        error: "投稿の上限に達しました。しばらくしてからお試しください。",
       };
     }
 
