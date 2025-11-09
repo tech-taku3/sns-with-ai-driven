@@ -14,7 +14,6 @@ interface ProfileActionsProps {
   onMoreClick?: () => void;
   onMessageClick?: () => void;
   onShareClick?: () => void;
-  onEditProfileClick?: () => void;
   className?: string;
 }
 
@@ -26,7 +25,6 @@ export function ProfileActions({
   onMoreClick,
   onMessageClick,
   onShareClick,
-  onEditProfileClick,
   className = ""
 }: ProfileActionsProps) {
   const params = useParams();

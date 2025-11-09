@@ -3,14 +3,15 @@
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { getGlobalProfileImage } from "../timeline";
 import { cn } from "@/lib/utils";
 import { Home, Search, Bell, Mail, Rocket, Bookmark, Users, Briefcase, Star, Settings, User } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useUser } from "@clerk/nextjs";
 
 export function TimelineHeader() {
   const [activeTab, setActiveTab] = useState<"for-you" | "following">("for-you");
+  const { user } = useUser();
 
   const navigationItems = [
     { icon: Home, label: "Home", href: "/" },
@@ -22,7 +23,11 @@ export function TimelineHeader() {
     { icon: Briefcase, label: "Jobs", href: "/jobs" },
     { icon: Users, label: "Communities", href: "/communities" },
     { icon: Star, label: "Premium", href: "/premium" },
-    { icon: User, label: "Profile", href: "/profile" },
+    { 
+      icon: User, 
+      label: "Profile", 
+      href: user?.username ? `/${user.username}` : "/sign-in"
+    },
     { icon: Settings, label: "More", href: "/more" },
   ];
 
@@ -36,8 +41,10 @@ export function TimelineHeader() {
             <SheetTrigger asChild>
               <button className="lg:hidden rounded-full overflow-hidden">
                 <Avatar>
-                  <AvatarImage src={getGlobalProfileImage()} alt="me" />
-                  <AvatarFallback>me</AvatarFallback>
+                  <AvatarImage src={user?.imageUrl} alt={user?.username || "User"} />
+                  <AvatarFallback>
+                    {user?.firstName?.[0] || user?.username?.[0]?.toUpperCase() || "U"}
+                  </AvatarFallback>
                 </Avatar>
               </button>
             </SheetTrigger>
@@ -49,24 +56,33 @@ export function TimelineHeader() {
               <div className="p-4 -mt-12">
                 <div className="flex items-center gap-3 mb-4">
                   <Avatar>
-                    <AvatarImage src={getGlobalProfileImage()} alt="me" />
-                    <AvatarFallback>me</AvatarFallback>
+                    <AvatarImage src={user?.imageUrl} alt={user?.username || "User"} />
+                    <AvatarFallback>
+                      {user?.firstName?.[0] || user?.username?.[0]?.toUpperCase() || "U"}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <span className="font-semibold">tech_taku</span>
-                    <span className="text-black/50 dark:text-white/50">@TechTaku3</span>
+                    <span className="font-semibold">
+                      {user?.firstName && user?.lastName 
+                        ? `${user.firstName} ${user.lastName}` 
+                        : user?.username || "User"}
+                    </span>
+                    <span className="text-black/50 dark:text-white/50">
+                      @{user?.username || "user"}
+                    </span>
                   </div>
                 </div>
-                <div className="flex gap-4 text-sm mb-6">
+                <Link 
+                  href={user?.username ? `/${user.username}` : "/sign-in"}
+                  className="flex gap-4 text-sm mb-6 hover:underline"
+                >
                   <div>
-                    <span className="font-semibold">1,234</span>{" "}
-                    <span className="text-black/50 dark:text-white/50">Following</span>
+                    <span className="font-semibold">Following</span>
                   </div>
                   <div>
-                    <span className="font-semibold">5,678</span>{" "}
-                    <span className="text-black/50 dark:text-white/50">Followers</span>
+                    <span className="font-semibold">Followers</span>
                   </div>
-                </div>
+                </Link>
               </div>
               <nav className="flex-1">
                 {navigationItems.map(({ icon: Icon, label, href }) => (

@@ -47,7 +47,7 @@ export async function getUserByUsername(username: string, currentUserId?: string
     return null
   }
 
-  const { followers, ...userWithoutFollowers } = user as any
+  const { followers, ...userWithoutFollowers } = user
 
   return {
     ...userWithoutFollowers,

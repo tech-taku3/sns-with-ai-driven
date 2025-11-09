@@ -45,36 +45,43 @@ export function LikeButton({
   const { isLiked, likesCount } = optimisticLike;
 
   return (
-    <form action={handleSubmit}>
-      <input type="hidden" name="postId" value={postId} />
-      <button
-        type="submit"
-        className={`flex items-center gap-1 group transition-opacity ${
-          pending ? "opacity-50 cursor-not-allowed" : ""
-        }`}
-        disabled={pending}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div
-          className={`rounded-full p-1.5 group-hover:bg-pink-500/10 ${
-            isLiked ? "bg-pink-500/10" : ""
+    <div className="relative">
+      <form action={handleSubmit}>
+        <input type="hidden" name="postId" value={postId} />
+        <button
+          type="submit"
+          className={`flex items-center gap-1 group transition-opacity ${
+            pending ? "opacity-50 cursor-not-allowed" : ""
           }`}
+          disabled={pending}
+          onClick={(e) => e.stopPropagation()}
         >
-          <Heart
-            className={`h-4 w-4 group-hover:text-pink-500 ${
-              isLiked ? "text-pink-500 fill-pink-500" : ""
+          <div
+            className={`rounded-full p-1.5 group-hover:bg-pink-500/10 ${
+              isLiked ? "bg-pink-500/10" : ""
             }`}
-          />
+          >
+            <Heart
+              className={`h-4 w-4 group-hover:text-pink-500 ${
+                isLiked ? "text-pink-500 fill-pink-500" : ""
+              }`}
+            />
+          </div>
+          <span
+            className={`text-xs group-hover:text-pink-500 ${
+              isLiked ? "text-pink-500" : ""
+            }`}
+          >
+            {likesCount}
+          </span>
+        </button>
+      </form>
+      {state.error && (
+        <div className="absolute top-full left-0 mt-1 px-2 py-1 bg-red-500 text-white text-xs rounded whitespace-nowrap z-10 shadow-lg">
+          {state.error}
         </div>
-        <span
-          className={`text-xs group-hover:text-pink-500 ${
-            isLiked ? "text-pink-500" : ""
-          }`}
-        >
-          {likesCount}
-        </span>
-      </button>
-    </form>
+      )}
+    </div>
   );
 }
 

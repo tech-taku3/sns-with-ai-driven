@@ -16,15 +16,12 @@ export default async function UserProfilePage({ params }: PageProps) {
   const username = decodeURIComponent(rawUsername)
   
   // 現在のユーザーIDを取得
-  const { userId: clerkId } = await auth();
-  let currentUserId: string | undefined;
-  if (clerkId) {
-    const currentUser = await prisma.user.findUnique({
-      where: { clerkId },
-      select: { id: true }
-    });
-    currentUserId = currentUser?.id;
-  }
+  const { userId: clerkId } = await auth()
+  const currentUser = clerkId ? await prisma.user.findUnique({
+    where: { clerkId },
+    select: { id: true }
+  }) : null
+  const currentUserId = currentUser?.id
   
   const [user, posts] = await Promise.all([
     getUserByUsername(username, currentUserId),
@@ -54,7 +51,7 @@ export default async function UserProfilePage({ params }: PageProps) {
 
   return (
     <div className="flex justify-center min-h-screen">
-      <div className="flex w-full lg:w-[1265px] mx-auto">
+      <div className="flex w-full max-w-[1265px] mx-auto">
         <LeftSidebar />
         <main className="flex-1 lg:flex-none lg:w-[600px] lg:min-w-[600px]">
           <Profile 
@@ -78,13 +75,7 @@ export default async function UserProfilePage({ params }: PageProps) {
         </main>
         <RightSidebar />
       </div>
-      <MobileNav className="fixed bottom-0 left-0 right-0 lg:hidden" />
+      <MobileNav className="fixed bottom-0 left-0 right-0 md:hidden" />
     </div>
   )
 }
-
-export async function generateStaticParams() {
-  return []
-}
-
-

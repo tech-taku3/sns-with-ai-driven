@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { followRateLimit } from "@/lib/rate-limit";
 
 export type FollowState = {
   message?: string;
@@ -26,6 +27,12 @@ export async function toggleFollow(
     const { userId: clerkId } = await auth();
     if (!clerkId) {
       return { error: "認証が必要です" };
+    }
+
+    // レート制限チェック
+    const { success: rateLimitSuccess } = await followRateLimit.limit(clerkId);
+    if (!rateLimitSuccess) {
+      return { error: "フォローの上限に達しました。しばらくしてからお試しください。" };
     }
 
     // 現在のユーザー情報の取得
@@ -101,6 +108,12 @@ export async function toggleFollow(
     };
   } catch (error) {
     console.error("フォロー切り替えエラー:", error);
+    
+    // 本番環境では詳細を隠す（情報漏洩防止）
+    if (process.env.NODE_ENV === 'production') {
+      return { error: "フォローの処理に失敗しました" };
+    }
+    
     return {
       error:
         error instanceof Error

@@ -12,11 +12,24 @@ async function isUserExists(clerkId: string): Promise<boolean> {
 
 export async function POST(req: NextRequest) {
   try {
+    // Webhook署名検証（Clerkの公式ライブラリが自動検証）
     const evt = await verifyWebhook(req)
 
     const { id } = evt.data
     const eventType = evt.type
-    console.log(`Received webhook with ID ${id} and event type of ${eventType}`)
+    
+    // イベントタイプのホワイトリスト検証
+    const validEvents = ['user.created', 'user.updated', 'user.deleted']
+    if (!validEvents.includes(eventType)) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`⚠️ Unknown webhook event type: ${eventType}`)
+      }
+      return new Response('Event type not handled', { status: 200 })
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`✅ Received webhook: ${eventType} (ID: ${id})`)
+    }
 
     // Handle user.created event
     if (eventType === 'user.created') {
@@ -30,17 +43,25 @@ export async function POST(req: NextRequest) {
         image_url 
       } = evt.data
 
-      console.log('User data:', JSON.stringify(evt.data, null, 2))
-      console.log('Email addresses:', email_addresses)
-      console.log('Primary email ID:', primary_email_address_id)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('User data:', JSON.stringify(evt.data, null, 2))
+        console.log('Email addresses:', email_addresses)
+        console.log('Primary email ID:', primary_email_address_id)
+      }
 
       // Get the primary email address
-      const primaryEmail = email_addresses?.find((email: any) => email.id === primary_email_address_id)
+      interface EmailAddress {
+        id: string;
+        email_address: string;
+      }
+      const primaryEmail = email_addresses?.find((email: EmailAddress) => email.id === primary_email_address_id)
       const email = primaryEmail?.email_address || email_addresses?.[0]?.email_address
 
       // テストイベントの場合はメールアドレスがないため、ダミーのメールを使用
       if (!email) {
-        console.warn('No email found for user, using placeholder email for test event:', userId)
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('No email found for user, using placeholder email for test event:', userId)
+        }
         const placeholderEmail = `${userId}@clerk-test.local`
         const placeholderUsername = username || `user_${userId.substring(5, 15)}`
         
@@ -53,11 +74,12 @@ export async function POST(req: NextRequest) {
               username: placeholderUsername,
               displayName: `${first_name || ''} ${last_name || ''}`.trim() || placeholderUsername,
               profileImageUrl: image_url,
-              passwordHash: '', // Clerk handles authentication, so we don't need a password
             }
           })
 
-          console.log('User created in database (test event):', user)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('User created in database (test event):', user)
+          }
         } catch (error) {
           console.error('Error creating user in database:', error)
           return new Response('Failed to create user', { status: 500 })
@@ -72,11 +94,12 @@ export async function POST(req: NextRequest) {
               username: username || email.split('@')[0],
               displayName: `${first_name || ''} ${last_name || ''}`.trim() || username || email.split('@')[0],
               profileImageUrl: image_url,
-              passwordHash: '', // Clerk handles authentication, so we don't need a password
             }
           })
 
-          console.log('User created in database:', user)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('User created in database:', user)
+          }
         } catch (error) {
           console.error('Error creating user in database:', error)
           return new Response('Failed to create user', { status: 500 })
@@ -97,12 +120,20 @@ export async function POST(req: NextRequest) {
       } = evt.data
 
       // Get the primary email address
-      const primaryEmail = email_addresses?.find((email: any) => email.id === primary_email_address_id)
+      interface EmailAddress {
+        id: string;
+        email_address: string;
+      }
+      const primaryEmail = email_addresses?.find((email: EmailAddress) => email.id === primary_email_address_id)
       const email = primaryEmail?.email_address || email_addresses?.[0]?.email_address
 
       if (!email) {
-        console.error('No primary email found for user:', userId)
-        console.error('Available email addresses:', email_addresses)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('No primary email found for user:', userId)
+          console.error('Available email addresses:', email_addresses)
+        } else {
+          console.error('No primary email found in webhook event')
+        }
         return new Response('No primary email found', { status: 400 })
       }
 
@@ -110,7 +141,9 @@ export async function POST(req: NextRequest) {
       try {
         // Check if user exists
         if (!(await isUserExists(userId))) {
-          console.warn(`User with clerkId ${userId} not found in database, skipping update`)
+          if (process.env.NODE_ENV === 'development') {
+            console.warn(`User with clerkId ${userId} not found in database, skipping update`)
+          }
           return new Response('User not found in database', { status: 404 })
         }
 
@@ -124,7 +157,9 @@ export async function POST(req: NextRequest) {
           }
         })
 
-        console.log('User updated in database:', user)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('User updated in database:', user)
+        }
       } catch (error) {
         console.error('Error updating user in database:', error)
         return new Response('Failed to update user', { status: 500 })
@@ -144,7 +179,9 @@ export async function POST(req: NextRequest) {
         
         // Check if user exists
         if (!(await isUserExists(userId))) {
-          console.warn(`User with clerkId ${userId} not found in database, skipping deletion`)
+          if (process.env.NODE_ENV === 'development') {
+            console.warn(`User with clerkId ${userId} not found in database, skipping deletion`)
+          }
           return new Response('User not found in database', { status: 404 })
         }
 
@@ -152,7 +189,9 @@ export async function POST(req: NextRequest) {
           where: { clerkId: userId }
         })
 
-        console.log('User deleted from database:', userId)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('User deleted from database:', userId)
+        }
       } catch (error) {
         console.error('Error deleting user from database:', error)
         return new Response('Failed to delete user', { status: 500 })
@@ -161,7 +200,14 @@ export async function POST(req: NextRequest) {
 
     return new Response('Webhook processed successfully', { status: 200 })
   } catch (err) {
-    console.error('Error verifying webhook:', err)
-    return new Response('Error verifying webhook', { status: 400 })
+    // Webhook検証失敗（署名が不正、または不正なリクエスト）
+    console.error('❌ Webhook verification failed:', err)
+    
+    // 本番環境では詳細を隠す
+    if (process.env.NODE_ENV === 'production') {
+      return new Response('Unauthorized', { status: 401 })
+    }
+    
+    return new Response('Webhook verification failed', { status: 401 })
   }
 }

@@ -56,11 +56,13 @@ export async function getTimelinePosts(userId?: string): Promise<Post[]> {
     take: 20
   })
 
-  return posts.map(post => ({
-    ...post,
-    isLiked: userId ? (post.likes && post.likes.length > 0) : false,
-    likes: undefined as any
-  }))
+  return posts.map(post => {
+    const { likes, ...postWithoutLikes } = post
+    return {
+      ...postWithoutLikes,
+      isLiked: userId ? (likes && likes.length > 0) : false,
+    }
+  })
 }
 
 export async function getUserPostsByUsername(username: string, userId?: string): Promise<Post[]> {
@@ -93,11 +95,13 @@ export async function getUserPostsByUsername(username: string, userId?: string):
     take: 20
   })
 
-  return posts.map(post => ({
-    ...post,
-    isLiked: userId ? (post.likes && post.likes.length > 0) : false,
-    likes: undefined as any
-  }))
+  return posts.map(post => {
+    const { likes, ...postWithoutLikes } = post
+    return {
+      ...postWithoutLikes,
+      isLiked: userId ? (likes && likes.length > 0) : false,
+    }
+  })
 }
 
 export async function getPostById(postId: string): Promise<Post | null> {

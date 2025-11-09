@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { postRateLimit } from "@/lib/rate-limit";
 
 export interface CreatePostInput {
   content: string;
@@ -30,6 +31,15 @@ export async function createPost(
       return {
         success: false,
         error: "認証が必要です。ログインしてください。",
+      };
+    }
+
+    // レート制限チェック
+    const { success: rateLimitSuccess } = await postRateLimit.limit(clerkId);
+    if (!rateLimitSuccess) {
+      return {
+        success: false,
+        error: "投稿の上限に達しました。しばらくしてからお試しください。",
       };
     }
 
@@ -99,6 +109,8 @@ export async function createPost(
     };
   } catch (error) {
     console.error("ポスト作成エラー:", error);
+    
+    // 本番環境では詳細を隠す（情報漏洩防止）
     return {
       success: false,
       error: "投稿の作成に失敗しました。もう一度お試しください。",
@@ -169,6 +181,8 @@ export async function deletePost(
     };
   } catch (error) {
     console.error("ポスト削除エラー:", error);
+    
+    // 本番環境では詳細を隠す（情報漏洩防止）
     return {
       success: false,
       error: "投稿の削除に失敗しました。",

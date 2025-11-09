@@ -23,12 +23,11 @@ export default async function EditProfilePage({ params }: PageProps) {
     notFound();
   }
 
-  let currentUserId: string | undefined;
   const currentUser = await prisma.user.findUnique({
     where: { clerkId },
     select: { id: true, username: true },
   });
-  currentUserId = currentUser?.id;
+  const currentUserId = currentUser?.id;
 
   // 自分のプロフィールでない場合はアクセス拒否
   if (!currentUser || currentUser.username !== username) {
@@ -49,7 +48,7 @@ export default async function EditProfilePage({ params }: PageProps) {
 
   return (
     <div className="flex justify-center min-h-screen">
-      <div className="flex w-full lg:w-[1265px] mx-auto">
+      <div className="flex w-full max-w-[1265px] mx-auto">
         <LeftSidebar />
         <main className="flex-1 lg:flex-none lg:w-[600px] lg:min-w-[600px]">
           <Profile
@@ -76,7 +75,7 @@ export default async function EditProfilePage({ params }: PageProps) {
         </main>
         <RightSidebar />
       </div>
-      <MobileNav className="fixed bottom-0 left-0 right-0 lg:hidden" />
+      <MobileNav className="fixed bottom-0 left-0 right-0 md:hidden" />
       <EditProfileModal
         user={{
           displayName: user.displayName,
@@ -88,8 +87,3 @@ export default async function EditProfilePage({ params }: PageProps) {
     </div>
   );
 }
-
-export async function generateStaticParams() {
-  return [];
-}
-

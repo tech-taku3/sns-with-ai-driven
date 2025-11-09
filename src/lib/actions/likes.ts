@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { likeRateLimit } from "@/lib/rate-limit";
 
 export type State = {
   message?: string;
@@ -26,6 +27,12 @@ export async function toggleLike(
     const { userId: clerkId } = await auth();
     if (!clerkId) {
       return { error: "認証が必要です" };
+    }
+
+    // レート制限チェック
+    const { success: rateLimitSuccess } = await likeRateLimit.limit(clerkId);
+    if (!rateLimitSuccess) {
+      return { error: "いいねの上限に達しました。しばらくしてからお試しください。" };
     }
 
     // ユーザー情報の取得
@@ -86,6 +93,12 @@ export async function toggleLike(
     };
   } catch (error) {
     console.error("いいね切り替えエラー:", error);
+    
+    // 本番環境では詳細を隠す（情報漏洩防止）
+    if (process.env.NODE_ENV === 'production') {
+      return { error: "いいねの処理に失敗しました" };
+    }
+    
     return {
       error:
         error instanceof Error

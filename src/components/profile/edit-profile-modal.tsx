@@ -7,6 +7,7 @@ import { useEffect, useState, useRef } from "react";
 import { useActionState } from "react";
 import { updateProfile } from "@/lib/actions/users";
 import { uploadImage } from "@/lib/actions/upload";
+import Image from "next/image";
 
 interface EditProfileModalProps {
   user?: {
@@ -27,6 +28,7 @@ export function EditProfileModal({ user }: EditProfileModalProps) {
   const [profilePreview, setProfilePreview] = useState<string | null>(user?.profileImageUrl || null);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingProfile, setUploadingProfile] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   // 成功時にモーダルを閉じる
   useEffect(() => {
@@ -57,8 +59,11 @@ export function EditProfileModal({ user }: EditProfileModalProps) {
 
     if (result.url) {
       setCoverPreview(result.url);
+      setUploadError(null); // 成功時はエラーをクリア
     } else if (result.error) {
-      alert(result.error);
+      setUploadError(result.error);
+      // 5秒後にエラーメッセージを自動で消す
+      setTimeout(() => setUploadError(null), 5000);
     }
   };
 
@@ -84,8 +89,11 @@ export function EditProfileModal({ user }: EditProfileModalProps) {
 
     if (result.url) {
       setProfilePreview(result.url);
+      setUploadError(null); // 成功時はエラーをクリア
     } else if (result.error) {
-      alert(result.error);
+      setUploadError(result.error);
+      // 5秒後にエラーメッセージを自動で消す
+      setTimeout(() => setUploadError(null), 5000);
     }
   };
 
@@ -134,10 +142,10 @@ export function EditProfileModal({ user }: EditProfileModalProps) {
         </div>
 
         {/* エラーメッセージ */}
-        {state.error && (
+        {(state.error || uploadError) && (
           <div className="px-6 pt-4">
             <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
-              {state.error}
+              {state.error || uploadError}
             </div>
           </div>
         )}
@@ -153,10 +161,12 @@ export function EditProfileModal({ user }: EditProfileModalProps) {
             <label className="block text-sm font-medium mb-2">Cover Image</label>
             <div className="relative h-48 rounded-lg overflow-hidden group cursor-pointer" onClick={() => coverInputRef.current?.click()}>
               {coverPreview ? (
-                <img 
+                <Image 
                   src={coverPreview} 
                   alt="Cover" 
-                  className="w-full h-full object-cover"
+                  className="object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 672px"
                 />
               ) : (
                 <div className="bg-gradient-to-r from-blue-400 to-purple-500 h-full">
@@ -191,10 +201,12 @@ export function EditProfileModal({ user }: EditProfileModalProps) {
                 onClick={() => profileInputRef.current?.click()}
               >
                 {profilePreview ? (
-                  <img 
+                  <Image 
                     src={profilePreview} 
                     alt="Profile" 
-                    className="w-full h-full object-cover"
+                    className="object-cover"
+                    fill
+                    sizes="96px"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-300 dark:bg-gray-600" />
