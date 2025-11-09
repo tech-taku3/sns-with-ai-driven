@@ -12,11 +12,22 @@ async function isUserExists(clerkId: string): Promise<boolean> {
 
 export async function POST(req: NextRequest) {
   try {
+    // Webhook署名検証（Clerkの公式ライブラリが自動検証）
     const evt = await verifyWebhook(req)
 
     const { id } = evt.data
     const eventType = evt.type
-    console.log(`Received webhook with ID ${id} and event type of ${eventType}`)
+    
+    // イベントタイプのホワイトリスト検証
+    const validEvents = ['user.created', 'user.updated', 'user.deleted']
+    if (!validEvents.includes(eventType)) {
+      console.warn(`⚠️ Unknown webhook event type: ${eventType}`)
+      return new Response('Event type not handled', { status: 200 })
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`✅ Received webhook: ${eventType} (ID: ${id})`)
+    }
 
     // Handle user.created event
     if (eventType === 'user.created') {
@@ -30,9 +41,11 @@ export async function POST(req: NextRequest) {
         image_url 
       } = evt.data
 
-      console.log('User data:', JSON.stringify(evt.data, null, 2))
-      console.log('Email addresses:', email_addresses)
-      console.log('Primary email ID:', primary_email_address_id)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('User data:', JSON.stringify(evt.data, null, 2))
+        console.log('Email addresses:', email_addresses)
+        console.log('Primary email ID:', primary_email_address_id)
+      }
 
       // Get the primary email address
       interface EmailAddress {
@@ -61,7 +74,9 @@ export async function POST(req: NextRequest) {
             }
           })
 
-          console.log('User created in database (test event):', user)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('User created in database (test event):', user)
+          }
         } catch (error) {
           console.error('Error creating user in database:', error)
           return new Response('Failed to create user', { status: 500 })
@@ -80,7 +95,9 @@ export async function POST(req: NextRequest) {
             }
           })
 
-          console.log('User created in database:', user)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('User created in database:', user)
+          }
         } catch (error) {
           console.error('Error creating user in database:', error)
           return new Response('Failed to create user', { status: 500 })
@@ -132,7 +149,9 @@ export async function POST(req: NextRequest) {
           }
         })
 
-        console.log('User updated in database:', user)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('User updated in database:', user)
+        }
       } catch (error) {
         console.error('Error updating user in database:', error)
         return new Response('Failed to update user', { status: 500 })
@@ -160,7 +179,9 @@ export async function POST(req: NextRequest) {
           where: { clerkId: userId }
         })
 
-        console.log('User deleted from database:', userId)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('User deleted from database:', userId)
+        }
       } catch (error) {
         console.error('Error deleting user from database:', error)
         return new Response('Failed to delete user', { status: 500 })
@@ -169,7 +190,14 @@ export async function POST(req: NextRequest) {
 
     return new Response('Webhook processed successfully', { status: 200 })
   } catch (err) {
-    console.error('Error verifying webhook:', err)
-    return new Response('Error verifying webhook', { status: 400 })
+    // Webhook検証失敗（署名が不正、または不正なリクエスト）
+    console.error('❌ Webhook verification failed:', err)
+    
+    // 本番環境では詳細を隠す
+    if (process.env.NODE_ENV === 'production') {
+      return new Response('Unauthorized', { status: 401 })
+    }
+    
+    return new Response('Webhook verification failed', { status: 401 })
   }
 }
