@@ -21,7 +21,9 @@ export async function POST(req: NextRequest) {
     // イベントタイプのホワイトリスト検証
     const validEvents = ['user.created', 'user.updated', 'user.deleted']
     if (!validEvents.includes(eventType)) {
-      console.warn(`⚠️ Unknown webhook event type: ${eventType}`)
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`⚠️ Unknown webhook event type: ${eventType}`)
+      }
       return new Response('Event type not handled', { status: 200 })
     }
 
@@ -57,7 +59,9 @@ export async function POST(req: NextRequest) {
 
       // テストイベントの場合はメールアドレスがないため、ダミーのメールを使用
       if (!email) {
-        console.warn('No email found for user, using placeholder email for test event:', userId)
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('No email found for user, using placeholder email for test event:', userId)
+        }
         const placeholderEmail = `${userId}@clerk-test.local`
         const placeholderUsername = username || `user_${userId.substring(5, 15)}`
         
@@ -126,8 +130,12 @@ export async function POST(req: NextRequest) {
       const email = primaryEmail?.email_address || email_addresses?.[0]?.email_address
 
       if (!email) {
-        console.error('No primary email found for user:', userId)
-        console.error('Available email addresses:', email_addresses)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('No primary email found for user:', userId)
+          console.error('Available email addresses:', email_addresses)
+        } else {
+          console.error('No primary email found in webhook event')
+        }
         return new Response('No primary email found', { status: 400 })
       }
 
@@ -135,7 +143,9 @@ export async function POST(req: NextRequest) {
       try {
         // Check if user exists
         if (!(await isUserExists(userId))) {
-          console.warn(`User with clerkId ${userId} not found in database, skipping update`)
+          if (process.env.NODE_ENV === 'development') {
+            console.warn(`User with clerkId ${userId} not found in database, skipping update`)
+          }
           return new Response('User not found in database', { status: 404 })
         }
 
@@ -171,7 +181,9 @@ export async function POST(req: NextRequest) {
         
         // Check if user exists
         if (!(await isUserExists(userId))) {
-          console.warn(`User with clerkId ${userId} not found in database, skipping deletion`)
+          if (process.env.NODE_ENV === 'development') {
+            console.warn(`User with clerkId ${userId} not found in database, skipping deletion`)
+          }
           return new Response('User not found in database', { status: 404 })
         }
 
