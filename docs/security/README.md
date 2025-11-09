@@ -10,10 +10,12 @@
 
 | ドキュメント | 内容 | 優先度 |
 |------------|------|--------|
+| [SECURITY_HEADERS_IMPLEMENTATION.md](./SECURITY_HEADERS_IMPLEMENTATION.md) | HTTPセキュリティヘッダーの設定 | 🔴 高 |
 | [RATE_LIMIT_IMPLEMENTATION.md](./RATE_LIMIT_IMPLEMENTATION.md) | レート制限の実装詳細 | 🔴 高 |
 | [RATE_LIMIT_SETUP.md](./RATE_LIMIT_SETUP.md) | Upstash Redisのセットアップ手順 | 🔴 高 |
 | [WEBHOOK_SECURITY.md](./WEBHOOK_SECURITY.md) | Webhook署名検証の実装 | 🔴 高 |
 | [SUPABASE_SECURITY_AUDIT.md](./SUPABASE_SECURITY_AUDIT.md) | Service Role Key露出防止 | 🔴 高 |
+| [FILE_UPLOAD_SECURITY.md](./FILE_UPLOAD_SECURITY.md) | ファイルアップロードのセキュリティ強化 | 🔴 高 |
 
 ### 🔍 セキュリティ監査レポート
 
@@ -35,11 +37,11 @@
    - ビルド時の環境変数チェック
    - Service Role Key の露出防止
 
-2. **セキュリティヘッダーの設定** (`next.config.ts`)
+2. **セキュリティヘッダーの設定** ([SECURITY_HEADERS_IMPLEMENTATION.md](./SECURITY_HEADERS_IMPLEMENTATION.md))
    - HSTS（中間者攻撃防止）
    - X-Frame-Options（クリックジャッキング防止）
    - X-Content-Type-Options（MIMEスニッフィング防止）
-   - その他7つのセキュリティヘッダー
+   - 7種類のHTTPセキュリティヘッダー
 
 3. **レート制限の実装** ([RATE_LIMIT_IMPLEMENTATION.md](./RATE_LIMIT_IMPLEMENTATION.md))
    - Upstash Redis による制限
@@ -56,7 +58,7 @@
    - データベース構造の漏洩防止
    - GDPR準拠
 
-6. **ファイルアップロードの検証強化** (`src/lib/actions/upload.ts`)
+6. **ファイルアップロードの検証強化** ([FILE_UPLOAD_SECURITY.md](./FILE_UPLOAD_SECURITY.md))
    - マジックナンバー検証
    - MIME type偽装防止
    - マルウェアアップロード防止
@@ -70,6 +72,11 @@
    - 全Server Actionsでエラー表示
    - ユーザーフレンドリーなUI
    - `alert()` の削除
+
+9. **N+1問題の監査** ([N_PLUS_1_AUDIT_REPORT.md](./N_PLUS_1_AUDIT_REPORT.md))
+   - データベースクエリの最適化確認
+   - Prismaの`include`で効率的なクエリ実装
+   - パフォーマンスとDoS攻撃対策
 
 ---
 
