@@ -4,12 +4,17 @@ const nextConfig = {
     domains: [
       'images.unsplash.com',
       'api.dicebear.com',  // アバター画像用のドメインも追加
+      'img.clerk.com',     // Clerk プロフィール画像
     ],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: '**.supabase.co',  // すべてのSupabaseプロジェクトに対応
         pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.clerk.dev',  // Clerk OAuth画像
       },
     ],
   },
