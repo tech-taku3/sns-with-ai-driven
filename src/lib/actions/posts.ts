@@ -109,6 +109,8 @@ export async function createPost(
     };
   } catch (error) {
     console.error("ポスト作成エラー:", error);
+    
+    // 本番環境では詳細を隠す（情報漏洩防止）
     return {
       success: false,
       error: "投稿の作成に失敗しました。もう一度お試しください。",
@@ -179,6 +181,8 @@ export async function deletePost(
     };
   } catch (error) {
     console.error("ポスト削除エラー:", error);
+    
+    // 本番環境では詳細を隠す（情報漏洩防止）
     return {
       success: false,
       error: "投稿の削除に失敗しました。",

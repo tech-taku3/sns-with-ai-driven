@@ -69,6 +69,12 @@ export async function uploadImage(
     return { url: urlData.publicUrl };
   } catch (error) {
     console.error("画像アップロードエラー:", error);
+    
+    // 本番環境では詳細を隠す（情報漏洩防止）
+    if (process.env.NODE_ENV === 'production') {
+      return { error: "画像のアップロードに失敗しました" };
+    }
+    
     return {
       error:
         error instanceof Error

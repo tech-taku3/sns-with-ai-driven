@@ -62,6 +62,12 @@ export async function updateProfile(
     return { message: "プロフィールを更新しました" };
   } catch (error) {
     console.error("プロフィール更新エラー:", error);
+    
+    // 本番環境では詳細を隠す（情報漏洩防止）
+    if (process.env.NODE_ENV === 'production') {
+      return { error: "プロフィールの更新に失敗しました" };
+    }
+    
     return {
       error:
         error instanceof Error

@@ -108,6 +108,12 @@ export async function toggleFollow(
     };
   } catch (error) {
     console.error("フォロー切り替えエラー:", error);
+    
+    // 本番環境では詳細を隠す（情報漏洩防止）
+    if (process.env.NODE_ENV === 'production') {
+      return { error: "フォローの処理に失敗しました" };
+    }
+    
     return {
       error:
         error instanceof Error
