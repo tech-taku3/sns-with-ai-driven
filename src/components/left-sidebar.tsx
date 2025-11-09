@@ -30,10 +30,10 @@ export function LeftSidebar() {
   ];
 
   return (
-    <header className="hidden lg:flex w-[275px] shrink-0">
-      <div className="fixed flex flex-col h-screen overflow-auto scrollbar-none ml-auto">
+    <header className="hidden md:flex w-[68px] lg:w-[275px] shrink-0">
+      <div className="fixed flex flex-col h-screen overflow-auto scrollbar-none w-[68px] lg:w-[275px]">
         <div className="flex flex-col">
-          <Link href="/" className="flex w-[52px] h-[52px] items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+          <Link href="/" className="flex w-[52px] h-[52px] items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full mx-auto lg:mx-0">
             <span className="text-2xl font-bold">X</span>
           </Link>
           <nav className="flex flex-col gap-1 mt-0.5">
@@ -41,23 +41,24 @@ export function LeftSidebar() {
               <Link
                 key={label}
                 href={href}
-                className="flex items-center w-fit px-3 py-3 text-xl rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="flex items-center justify-center lg:justify-start w-fit px-3 py-3 text-xl rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mx-auto lg:mx-0"
               >
                 <div className="flex items-center gap-5 text-[20px]">
                   <Icon className="h-[26px] w-[26px] shrink-0" />
-                  <span className="hidden xl:inline pr-4">{label}</span>
+                  <span className="hidden lg:inline pr-4">{label}</span>
                 </div>
               </Link>
             ))}
           </nav>
-          <Button className="mt-4 w-[90%] h-[52px] rounded-full text-[17px]" size="lg">
-            Post
+          <Button className="mt-4 w-[52px] h-[52px] lg:w-[90%] lg:h-[52px] rounded-full text-[17px] mx-auto lg:mx-0 p-0 lg:p-4" size="lg">
+            <span className="hidden lg:inline">Post</span>
+            <span className="lg:hidden text-2xl">+</span>
           </Button>
         </div>
         <div className="flex-1 min-h-[8px]" />
         <div>
           {user ? (
-            <div className="flex items-center gap-3 p-3 m-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            <div className="flex items-center justify-center lg:justify-start gap-3 p-3 m-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
               <UserButton 
                 appearance={{
                   elements: {
@@ -71,7 +72,7 @@ export function LeftSidebar() {
                 userProfileMode="modal"
                 afterSignOutUrl="/"
               />
-              <div className="hidden xl:flex flex-col text-[15px] flex-1">
+              <div className="hidden lg:flex flex-col text-[15px] flex-1">
                 <span className="font-bold leading-5">
                   {user.firstName && user.lastName 
                     ? `${user.firstName} ${user.lastName}` 
@@ -86,13 +87,13 @@ export function LeftSidebar() {
           ) : (
             <Link
               href="/sign-in"
-              className="flex items-center gap-3 p-3 m-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="flex items-center justify-center lg:justify-start gap-3 p-3 m-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               <Avatar className="h-10 w-10 shrink-0">
                 <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=guest" alt="guest" />
                 <AvatarFallback>G</AvatarFallback>
               </Avatar>
-              <div className="hidden xl:flex flex-col text-[15px]">
+              <div className="hidden lg:flex flex-col text-[15px]">
                 <span className="font-bold leading-5">ゲスト</span>
                 <span className="text-gray-500">ログインしてください</span>
               </div>
