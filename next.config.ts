@@ -1,4 +1,21 @@
 /** @type {import('next').NextConfig} */
+
+// ビルド時セキュリティチェック: Service Role Key の露出防止
+if (process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error(
+    '❌ セキュリティエラー: SUPABASE_SERVICE_ROLE_KEY が NEXT_PUBLIC_ プレフィックスで公開されています！\n' +
+    '   Service Role Key はクライアントサイドに露出してはいけません。\n' +
+    '   環境変数名を SUPABASE_SERVICE_ROLE_KEY に変更してください。'
+  );
+}
+
+if (process.env.NEXT_PUBLIC_DATABASE_URL) {
+  throw new Error(
+    '❌ セキュリティエラー: DATABASE_URL が NEXT_PUBLIC_ プレフィックスで公開されています！\n' +
+    '   データベース接続情報はクライアントサイドに露出してはいけません。'
+  );
+}
+
 const nextConfig = {
   images: {
     domains: [
