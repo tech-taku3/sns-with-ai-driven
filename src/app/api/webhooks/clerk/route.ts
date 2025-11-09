@@ -74,7 +74,6 @@ export async function POST(req: NextRequest) {
               username: placeholderUsername,
               displayName: `${first_name || ''} ${last_name || ''}`.trim() || placeholderUsername,
               profileImageUrl: image_url,
-              passwordHash: '', // Clerk handles authentication, so we don't need a password
             }
           })
 
@@ -95,7 +94,6 @@ export async function POST(req: NextRequest) {
               username: username || email.split('@')[0],
               displayName: `${first_name || ''} ${last_name || ''}`.trim() || username || email.split('@')[0],
               profileImageUrl: image_url,
-              passwordHash: '', // Clerk handles authentication, so we don't need a password
             }
           })
 
