@@ -2,20 +2,26 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Bell, Mail, Users } from "lucide-react";
+import { Home, Search, Bell, Mail, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUser } from "@clerk/nextjs";
 
 type MobileNavProps = React.HTMLAttributes<HTMLElement>
 
 export function MobileNav({ className, ...props }: MobileNavProps) {
   const pathname = usePathname();
+  const { user } = useUser();
   
   const items = [
     { icon: Home, label: "Home", href: "/" },
     { icon: Search, label: "Explore", href: "/explore" },
     { icon: Bell, label: "Notifications", href: "/notifications" },
     { icon: Mail, label: "Messages", href: "/messages" },
-    { icon: Users, label: "Communities", href: "/communities" },
+    { 
+      icon: User, 
+      label: "Profile", 
+      href: user?.username ? `/${user.username}` : "/sign-in"
+    },
   ];
 
   return (
