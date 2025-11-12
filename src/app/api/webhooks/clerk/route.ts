@@ -21,14 +21,16 @@ export async function POST(req: NextRequest) {
     // イベントタイプのホワイトリスト検証
     const validEvents = ['user.created', 'user.updated', 'user.deleted']
     if (!validEvents.includes(eventType)) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn(`⚠️ Unknown webhook event type: ${eventType}`)
-      }
+      console.warn(`⚠️ Unknown webhook event type: ${eventType}`)
       return new Response('Event type not handled', { status: 200 })
     }
 
+    // Webhook受信を記録（本番環境ではIDを出力しない）
     if (process.env.NODE_ENV === 'development') {
-      console.log(`✅ Received webhook: ${eventType} (ID: ${id})`)
+      console.log(`✅ Webhook received: ${eventType} (ID: ${id})`)
+      console.log(`Full webhook data:`, JSON.stringify(evt.data, null, 2))
+    } else {
+      console.log(`✅ Webhook received: ${eventType}`)
     }
 
     // Handle user.created event
@@ -77,11 +79,20 @@ export async function POST(req: NextRequest) {
             }
           })
 
+          // 本番環境では詳細情報を出力しない（情報漏洩防止）
           if (process.env.NODE_ENV === 'development') {
-            console.log('User created in database (test event):', user)
+            console.log(`✅ User created (test event): ${user.username} (${user.id})`)
+            console.log('User details:', user)
+          } else {
+            console.log('✅ User created (test event)')
           }
         } catch (error) {
-          console.error('Error creating user in database:', error)
+          // 本番環境では詳細なエラー情報を出力しない（情報漏洩防止）
+          if (process.env.NODE_ENV === 'development') {
+            console.error('❌ Error creating user in database:', error)
+          } else {
+            console.error('❌ Error creating user in database')
+          }
           return new Response('Failed to create user', { status: 500 })
         }
       } else {
@@ -97,11 +108,20 @@ export async function POST(req: NextRequest) {
             }
           })
 
+          // 本番環境では詳細情報を出力しない（情報漏洩防止）
           if (process.env.NODE_ENV === 'development') {
-            console.log('User created in database:', user)
+            console.log(`✅ User created: ${user.username} (${user.id})`)
+            console.log('User details:', user)
+          } else {
+            console.log('✅ User created')
           }
         } catch (error) {
-          console.error('Error creating user in database:', error)
+          // 本番環境では詳細なエラー情報を出力しない（情報漏洩防止）
+          if (process.env.NODE_ENV === 'development') {
+            console.error('❌ Error creating user in database:', error)
+          } else {
+            console.error('❌ Error creating user in database')
+          }
           return new Response('Failed to create user', { status: 500 })
         }
       }
@@ -157,11 +177,20 @@ export async function POST(req: NextRequest) {
           }
         })
 
+        // 本番環境では詳細情報を出力しない（情報漏洩防止）
         if (process.env.NODE_ENV === 'development') {
-          console.log('User updated in database:', user)
+          console.log(`✅ User updated: ${user.username} (${user.id})`)
+          console.log('User details:', user)
+        } else {
+          console.log('✅ User updated')
         }
       } catch (error) {
-        console.error('Error updating user in database:', error)
+        // 本番環境では詳細なエラー情報を出力しない（情報漏洩防止）
+        if (process.env.NODE_ENV === 'development') {
+          console.error('❌ Error updating user in database:', error)
+        } else {
+          console.error('❌ Error updating user in database')
+        }
         return new Response('Failed to update user', { status: 500 })
       }
     }
@@ -189,25 +218,35 @@ export async function POST(req: NextRequest) {
           where: { clerkId: userId }
         })
 
+        // 本番環境では詳細情報を出力しない（情報漏洩防止）
         if (process.env.NODE_ENV === 'development') {
-          console.log('User deleted from database:', userId)
+          console.log(`✅ User deleted: ${userId}`)
+        } else {
+          console.log('✅ User deleted')
         }
       } catch (error) {
-        console.error('Error deleting user from database:', error)
+        // 本番環境では詳細なエラー情報を出力しない（情報漏洩防止）
+        if (process.env.NODE_ENV === 'development') {
+          console.error('❌ Error deleting user from database:', error)
+        } else {
+          console.error('❌ Error deleting user from database')
+        }
         return new Response('Failed to delete user', { status: 500 })
       }
     }
 
+    console.log(`✅ Webhook processed successfully: ${eventType}`)
     return new Response('Webhook processed successfully', { status: 200 })
   } catch (err) {
     // Webhook検証失敗（署名が不正、または不正なリクエスト）
-    console.error('❌ Webhook verification failed:', err)
-    
-    // 本番環境では詳細を隠す
-    if (process.env.NODE_ENV === 'production') {
+    // 本番環境では詳細なエラー情報を出力しない（情報漏洩防止）
+    if (process.env.NODE_ENV === 'development') {
+      console.error('❌ Webhook verification failed:', err)
+      console.error('Error details:', err instanceof Error ? err.message : 'Unknown error')
+      return new Response('Webhook verification failed', { status: 401 })
+    } else {
+      console.error('❌ Webhook verification failed')
       return new Response('Unauthorized', { status: 401 })
     }
-    
-    return new Response('Webhook verification failed', { status: 401 })
   }
 }
