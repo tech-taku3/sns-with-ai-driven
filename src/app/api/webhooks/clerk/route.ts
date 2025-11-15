@@ -11,7 +11,23 @@ async function isUserExists(clerkId: string): Promise<boolean> {
 }
 
 export async function POST(req: NextRequest) {
+  // TODO: デバッグ後に削除 - Webhookエンドポイントが呼ばれたことを記録（本番環境でも出力される）
+  console.log('📥 Webhook endpoint called')
+  
   try {
+    // TODO: デバッグ後に削除 - 環境変数の存在チェック（開発環境のみのログ、実際の値は出力していないため安全）
+    // バックエンドのAPI Routeなので、環境変数にアクセスするのは問題ない
+    const hasWebhookSecret = !!process.env.WEBHOOK_SECRET
+    const hasDatabaseUrl = !!process.env.DATABASE_URL
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Environment check:', {
+        hasWebhookSecret,
+        hasDatabaseUrl,
+        nodeEnv: process.env.NODE_ENV
+      })
+    }
+    
     // Webhook署名検証（Clerkの公式ライブラリが自動検証）
     const evt = await verifyWebhook(req)
 
@@ -87,11 +103,18 @@ export async function POST(req: NextRequest) {
             console.log('✅ User created (test event)')
           }
         } catch (error) {
-          // 本番環境では詳細なエラー情報を出力しない（情報漏洩防止）
+          // エラーの詳細を記録（デバッグ用）
           if (process.env.NODE_ENV === 'development') {
             console.error('❌ Error creating user in database:', error)
+            if (error instanceof Error) {
+              console.error('Error name:', error.name)
+              console.error('Error message:', error.message)
+              console.error('Error stack:', error.stack)
+            }
           } else {
-            console.error('❌ Error creating user in database')
+            // 本番環境ではエラータイプのみ記録
+            const errorType = error instanceof Error ? error.name : 'Unknown'
+            console.error(`❌ Error creating user in database: ${errorType}`)
           }
           return new Response('Failed to create user', { status: 500 })
         }
@@ -116,11 +139,18 @@ export async function POST(req: NextRequest) {
             console.log('✅ User created')
           }
         } catch (error) {
-          // 本番環境では詳細なエラー情報を出力しない（情報漏洩防止）
+          // エラーの詳細を記録（デバッグ用）
           if (process.env.NODE_ENV === 'development') {
             console.error('❌ Error creating user in database:', error)
+            if (error instanceof Error) {
+              console.error('Error name:', error.name)
+              console.error('Error message:', error.message)
+              console.error('Error stack:', error.stack)
+            }
           } else {
-            console.error('❌ Error creating user in database')
+            // 本番環境ではエラータイプのみ記録
+            const errorType = error instanceof Error ? error.name : 'Unknown'
+            console.error(`❌ Error creating user in database: ${errorType}`)
           }
           return new Response('Failed to create user', { status: 500 })
         }
@@ -185,11 +215,16 @@ export async function POST(req: NextRequest) {
           console.log('✅ User updated')
         }
       } catch (error) {
-        // 本番環境では詳細なエラー情報を出力しない（情報漏洩防止）
+        // エラーの詳細を記録（デバッグ用）
         if (process.env.NODE_ENV === 'development') {
           console.error('❌ Error updating user in database:', error)
+          if (error instanceof Error) {
+            console.error('Error name:', error.name)
+            console.error('Error message:', error.message)
+          }
         } else {
-          console.error('❌ Error updating user in database')
+          const errorType = error instanceof Error ? error.name : 'Unknown'
+          console.error(`❌ Error updating user in database: ${errorType}`)
         }
         return new Response('Failed to update user', { status: 500 })
       }
@@ -225,11 +260,16 @@ export async function POST(req: NextRequest) {
           console.log('✅ User deleted')
         }
       } catch (error) {
-        // 本番環境では詳細なエラー情報を出力しない（情報漏洩防止）
+        // エラーの詳細を記録（デバッグ用）
         if (process.env.NODE_ENV === 'development') {
           console.error('❌ Error deleting user from database:', error)
+          if (error instanceof Error) {
+            console.error('Error name:', error.name)
+            console.error('Error message:', error.message)
+          }
         } else {
-          console.error('❌ Error deleting user from database')
+          const errorType = error instanceof Error ? error.name : 'Unknown'
+          console.error(`❌ Error deleting user from database: ${errorType}`)
         }
         return new Response('Failed to delete user', { status: 500 })
       }
