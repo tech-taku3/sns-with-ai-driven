@@ -4,10 +4,10 @@ import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { Home, Search, Bell, Mail, Rocket, Bookmark, Users, Briefcase, Star, Settings, User } from "lucide-react";
+import { Home, Search, Bell, Mail, Rocket, Bookmark, Users, Briefcase, Star, Settings, User, LogOut } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useUser, UserButton } from "@clerk/nextjs";
+import { useUser, SignOutButton } from "@clerk/nextjs";
 
 export function TimelineHeader() {
   const [activeTab, setActiveTab] = useState<"for-you" | "following">("for-you");
@@ -54,22 +54,18 @@ export function TimelineHeader() {
             </SheetHeader>
             <div className="flex flex-col h-full pb-8">
               <div className="p-4 -mt-12">
-                <div className="flex items-center gap-3 mb-4">
+                <Link
+                  href={user?.username ? `/${user.username}` : "/sign-in"}
+                  className="flex items-center gap-3 mb-4"
+                >
                   {user ? (
                     <>
-                      <UserButton
-                        appearance={{
-                          elements: {
-                            avatarBox: "h-10 w-10",
-                            userButtonPopoverCard: "shadow-lg border border-gray-200",
-                            userButtonPopoverActions: "p-2",
-                            userButtonPopoverActionButton: "hover:bg-gray-100 rounded-lg",
-                            userButtonPopoverFooter: "hidden",
-                          },
-                        }}
-                        userProfileMode="modal"
-                        afterSignOutUrl="/"
-                      />
+                      <Avatar>
+                        <AvatarImage src={user.imageUrl} alt={user.username || "User"} />
+                        <AvatarFallback>
+                          {user.firstName?.[0] || user.username?.[0]?.toUpperCase() || "U"}
+                        </AvatarFallback>
+                      </Avatar>
                       <div className="flex flex-col">
                         <span className="font-semibold">
                           {user.firstName && user.lastName
@@ -93,7 +89,7 @@ export function TimelineHeader() {
                       </div>
                     </>
                   )}
-                </div>
+                </Link>
                 <Link 
                   href={user?.username ? `/${user.username}` : "/sign-in"}
                   className="flex gap-4 text-sm mb-6 hover:underline"
@@ -117,6 +113,18 @@ export function TimelineHeader() {
                     <span>{label}</span>
                   </Link>
                 ))}
+
+                {user && (
+                  <SignOutButton redirectUrl="/">
+                    <button
+                      type="button"
+                      className="w-full flex items-center gap-4 px-6 py-3 text-red-600 dark:text-red-400 hover:bg-black/[.05] dark:hover:bg-white/[.08] transition"
+                    >
+                      <LogOut className="h-6 w-6" />
+                      <span>Log out</span>
+                    </button>
+                  </SignOutButton>
+                )}
               </nav>
             </div>
           </SheetContent>
