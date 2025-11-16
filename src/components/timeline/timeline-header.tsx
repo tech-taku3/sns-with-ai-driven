@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Home, Search, Bell, Mail, Rocket, Bookmark, Users, Briefcase, Star, Settings, User } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useUser } from "@clerk/nextjs";
+import { useUser, UserButton } from "@clerk/nextjs";
 
 export function TimelineHeader() {
   const [activeTab, setActiveTab] = useState<"for-you" | "following">("for-you");
@@ -52,25 +52,47 @@ export function TimelineHeader() {
             <SheetHeader className="p-4 text-left">
               <SheetTitle>Account info</SheetTitle>
             </SheetHeader>
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col h-full pb-8">
               <div className="p-4 -mt-12">
                 <div className="flex items-center gap-3 mb-4">
-                  <Avatar>
-                    <AvatarImage src={user?.imageUrl} alt={user?.username || "User"} />
-                    <AvatarFallback>
-                      {user?.firstName?.[0] || user?.username?.[0]?.toUpperCase() || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <span className="font-semibold">
-                      {user?.firstName && user?.lastName 
-                        ? `${user.firstName} ${user.lastName}` 
-                        : user?.username || "User"}
-                    </span>
-                    <span className="text-black/50 dark:text-white/50">
-                      @{user?.username || "user"}
-                    </span>
-                  </div>
+                  {user ? (
+                    <>
+                      <UserButton
+                        appearance={{
+                          elements: {
+                            avatarBox: "h-10 w-10",
+                            userButtonPopoverCard: "shadow-lg border border-gray-200",
+                            userButtonPopoverActions: "p-2",
+                            userButtonPopoverActionButton: "hover:bg-gray-100 rounded-lg",
+                            userButtonPopoverFooter: "hidden",
+                          },
+                        }}
+                        userProfileMode="modal"
+                        afterSignOutUrl="/"
+                      />
+                      <div className="flex flex-col">
+                        <span className="font-semibold">
+                          {user.firstName && user.lastName
+                            ? `${user.firstName} ${user.lastName}`
+                            : user.username || "User"}
+                        </span>
+                        <span className="text-black/50 dark:text-white/50">
+                          @{user.username || user.emailAddresses[0]?.emailAddress.split("@")[0] || "user"}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Avatar>
+                        <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=guest" alt="guest" />
+                        <AvatarFallback>G</AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <span className="font-semibold">ゲスト</span>
+                        <span className="text-black/50 dark:text-white/50">ログインしてください</span>
+                      </div>
+                    </>
+                  )}
                 </div>
                 <Link 
                   href={user?.username ? `/${user.username}` : "/sign-in"}
