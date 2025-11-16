@@ -11,23 +11,7 @@ async function isUserExists(clerkId: string): Promise<boolean> {
 }
 
 export async function POST(req: NextRequest) {
-  // TODO: デバッグ後に削除 - Webhookエンドポイントが呼ばれたことを記録（本番環境でも出力される）
-  console.log('📥 Webhook endpoint called')
-  
   try {
-    // TODO: デバッグ後に削除 - 環境変数の存在チェック（開発環境のみのログ、実際の値は出力していないため安全）
-    // バックエンドのAPI Routeなので、環境変数にアクセスするのは問題ない
-    const hasWebhookSecret = !!process.env.WEBHOOK_SECRET
-    const hasDatabaseUrl = !!process.env.DATABASE_URL
-    
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Environment check:', {
-        hasWebhookSecret,
-        hasDatabaseUrl,
-        nodeEnv: process.env.NODE_ENV
-      })
-    }
-    
     // Webhook署名検証（Clerkの公式ライブラリが自動検証）
     const evt = await verifyWebhook(req)
 
