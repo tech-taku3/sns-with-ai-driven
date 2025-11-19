@@ -39,6 +39,14 @@ function SheetOverlay({
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50",
         className
       )}
+      onClick={(e) => {
+        // Clerk モーダルが開いている間は Sheet を閉じない
+        const target = e.target as HTMLElement;
+        if (document.querySelector('[data-clerk-element]')) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }}
       {...props}
     />
   )
@@ -57,6 +65,23 @@ function SheetContent({
       <SheetOverlay />
       <SheetPrimitive.Content
         data-slot="sheet-content"
+        onPointerDown={(e) => {
+          // Sheet コンテンツ内のクリックが背面に伝わらないようにする
+          e.stopPropagation();
+        }}
+        onClick={(e) => {
+          // Sheet コンテンツ内のクリックが背面に伝わらないようにする
+          e.stopPropagation();
+        }}
+        onInteractOutside={(e) => {
+          const target = e.target as HTMLElement;
+          
+          // Clerk モーダルが開いている間は Sheet を閉じない
+          if (target.closest('[data-clerk-element]') || document.querySelector('[data-clerk-element]')) {
+            e.preventDefault();
+            return;
+          }
+        }}
         className={cn(
           "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 overflow-y-auto",
           side === "right" &&

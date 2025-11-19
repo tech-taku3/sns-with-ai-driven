@@ -81,6 +81,12 @@ export function TimelineHeader() {
                     <button
                       type="button"
                       className="flex items-center gap-3 mb-4 w-full text-left"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                      onMouseDown={(e) => {
+                        e.stopPropagation();
+                      }}
                     >
                       <Avatar>
                         <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=guest" alt="guest" />
