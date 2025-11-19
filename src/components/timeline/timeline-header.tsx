@@ -4,12 +4,17 @@ import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { Home, Search, Bell, Mail, Rocket, Bookmark, Users, Briefcase, Star, Settings, User } from "lucide-react";
+import { Home, Search, Bell, Mail, Rocket, Bookmark, Users, Briefcase, Star, Settings, User, LogOut } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useUser } from "@clerk/nextjs";
+import { useUser, SignInButton, SignOutButton } from "@clerk/nextjs";
+import type { FollowStats } from "@/lib/dal/users";
 
-export function TimelineHeader() {
+interface TimelineHeaderProps {
+  followStats?: FollowStats | null;
+}
+
+export function TimelineHeader({ followStats }: TimelineHeaderProps) {
   const [activeTab, setActiveTab] = useState<"for-you" | "following">("for-you");
   const { user } = useUser();
 
@@ -52,37 +57,68 @@ export function TimelineHeader() {
             <SheetHeader className="p-4 text-left">
               <SheetTitle>Account info</SheetTitle>
             </SheetHeader>
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col h-full pb-8">
               <div className="p-4 -mt-12">
-                <div className="flex items-center gap-3 mb-4">
+                {user ? (
+                  <Link
+                    href={`/${user.username}`}
+                    className="flex items-center gap-3 mb-4"
+                  >
                   <Avatar>
-                    <AvatarImage src={user?.imageUrl} alt={user?.username || "User"} />
+                      <AvatarImage src={user.imageUrl} alt={user.username || "User"} />
                     <AvatarFallback>
-                      {user?.firstName?.[0] || user?.username?.[0]?.toUpperCase() || "U"}
+                        {user.firstName?.[0] || user.username?.[0]?.toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
                     <span className="font-semibold">
-                      {user?.firstName && user?.lastName 
+                        {user.firstName && user.lastName
                         ? `${user.firstName} ${user.lastName}` 
-                        : user?.username || "User"}
+                          : user.username || "User"}
                     </span>
                     <span className="text-black/50 dark:text-white/50">
-                      @{user?.username || "user"}
+                        @{user.username || user.emailAddresses[0]?.emailAddress.split("@")[0] || "user"}
                     </span>
                   </div>
+                  </Link>
+                ) : (
+                  <SignInButton mode="modal" fallbackRedirectUrl="/">
+                    <button
+                      type="button"
+                      className="flex items-center gap-3 mb-4 w-full text-left"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                      onMouseDown={(e) => {
+                        e.stopPropagation();
+                      }}
+                    >
+                      <Avatar>
+                        <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=guest" alt="guest" />
+                        <AvatarFallback>G</AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <span className="font-semibold">ゲスト</span>
+                        <span className="text-black/50 dark:text-white/50">ログインしてください</span>
                 </div>
+                    </button>
+                  </SignInButton>
+                )}
+                {user && (
                 <Link 
-                  href={user?.username ? `/${user.username}` : "/sign-in"}
+                    href={`/${user.username}`}
                   className="flex gap-4 text-sm mb-6 hover:underline"
                 >
                   <div>
-                    <span className="font-semibold">Following</span>
+                    <span className="font-semibold">{followStats?.followingCount ?? 0}</span>
+                    <span className="text-black/50 dark:text-white/50 ml-1">Following</span>
                   </div>
                   <div>
-                    <span className="font-semibold">Followers</span>
+                    <span className="font-semibold">{followStats?.followersCount ?? 0}</span>
+                    <span className="text-black/50 dark:text-white/50 ml-1">Followers</span>
                   </div>
                 </Link>
+                )}
               </div>
               <nav className="flex-1">
                 {navigationItems.map(({ icon: Icon, label, href }) => (
@@ -95,6 +131,18 @@ export function TimelineHeader() {
                     <span>{label}</span>
                   </Link>
                 ))}
+
+                {user && (
+                  <SignOutButton redirectUrl="/">
+                    <button
+                      type="button"
+                      className="w-full flex items-center gap-4 px-6 py-3 text-red-600 dark:text-red-400 hover:bg-black/[.05] dark:hover:bg-white/[.08] transition"
+                    >
+                      <LogOut className="h-6 w-6" />
+                      <span>Log out</span>
+                    </button>
+                  </SignOutButton>
+                )}
               </nav>
             </div>
           </SheetContent>

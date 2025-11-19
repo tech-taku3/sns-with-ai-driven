@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Search, Bell, Mail, User } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUser } from "@clerk/nextjs";
+import { useUser, SignInButton } from "@clerk/nextjs";
 
 type MobileNavProps = React.HTMLAttributes<HTMLElement>
 
@@ -20,7 +20,7 @@ export function MobileNav({ className, ...props }: MobileNavProps) {
     { 
       icon: User, 
       label: "Profile", 
-      href: user?.username ? `/${user.username}` : "/sign-in"
+      href: user?.username ? `/${user.username}` : undefined
     },
   ];
 
@@ -32,7 +32,27 @@ export function MobileNav({ className, ...props }: MobileNavProps) {
       <div className="flex justify-around items-center h-14">
         {items.map(({ icon: Icon, label, href }) => {
           const isActive = pathname === href;
+          if (label === "Profile" && !user) {
           return (
+              <SignInButton
+                key={label}
+                mode="modal"
+                fallbackRedirectUrl="/"
+              >
+                <button
+                  type="button"
+                  className={cn(
+                    "flex flex-col items-center justify-center w-full h-full",
+                    "text-black/50 dark:text-white/50 hover:text-foreground"
+                  )}
+                >
+                  <Icon className="h-6 w-6" />
+                </button>
+              </SignInButton>
+            );
+          }
+
+          return href ? (
             <Link
               key={label}
               href={href}
@@ -44,7 +64,7 @@ export function MobileNav({ className, ...props }: MobileNavProps) {
             >
               <Icon className="h-6 w-6" />
             </Link>
-          );
+          ) : null;
         })}
       </div>
     </nav>

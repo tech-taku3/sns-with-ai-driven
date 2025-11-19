@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Home, Search, Bell, Mail, Rocket, Bookmark, Users, Briefcase, Star, Settings, User } from "lucide-react";
-import { useUser, UserButton } from "@clerk/nextjs";
+import { useUser, UserButton, SignInButton } from "@clerk/nextjs";
 import { Button } from "./ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 
@@ -85,9 +85,10 @@ export function LeftSidebar() {
               </div>
             </div>
           ) : (
-            <Link
-              href="/sign-in"
-              className="flex items-center justify-center lg:justify-start gap-3 p-3 m-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            <SignInButton mode="modal" fallbackRedirectUrl="/">
+              <button
+                type="button"
+                className="flex items-center justify-center lg:justify-start gap-3 p-3 m-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full"
             >
               <Avatar className="h-10 w-10 shrink-0">
                 <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=guest" alt="guest" />
@@ -97,7 +98,8 @@ export function LeftSidebar() {
                 <span className="font-bold leading-5">ゲスト</span>
                 <span className="text-gray-500">ログインしてください</span>
               </div>
-            </Link>
+              </button>
+            </SignInButton>
           )}
         </div>
       </div>
