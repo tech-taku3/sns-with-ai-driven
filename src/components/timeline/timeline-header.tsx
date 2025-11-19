@@ -8,8 +8,13 @@ import { Home, Search, Bell, Mail, Rocket, Bookmark, Users, Briefcase, Star, Set
 import Link from "next/link";
 import Image from "next/image";
 import { useUser, SignInButton, SignOutButton } from "@clerk/nextjs";
+import type { FollowStats } from "@/lib/dal/users";
 
-export function TimelineHeader() {
+interface TimelineHeaderProps {
+  followStats?: FollowStats | null;
+}
+
+export function TimelineHeader({ followStats }: TimelineHeaderProps) {
   const [activeTab, setActiveTab] = useState<"for-you" | "following">("for-you");
   const { user } = useUser();
 
@@ -105,10 +110,12 @@ export function TimelineHeader() {
                   className="flex gap-4 text-sm mb-6 hover:underline"
                 >
                   <div>
-                    <span className="font-semibold">Following</span>
+                    <span className="font-semibold">{followStats?.followingCount ?? 0}</span>
+                    <span className="text-black/50 dark:text-white/50 ml-1">Following</span>
                   </div>
                   <div>
-                    <span className="font-semibold">Followers</span>
+                    <span className="font-semibold">{followStats?.followersCount ?? 0}</span>
+                    <span className="text-black/50 dark:text-white/50 ml-1">Followers</span>
                   </div>
                 </Link>
                 )}
