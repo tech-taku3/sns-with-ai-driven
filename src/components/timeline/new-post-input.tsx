@@ -89,8 +89,8 @@ export function NewPostInput({ className = "", parentId }: NewPostInputProps) {
           </div>
         )}
         
-        <div className="flex items-center justify-between">
-          <div className="flex -ml-2">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex -ml-2 flex-shrink-0">
             <button 
               type="button"
               className="rounded-full p-2 hover:bg-primary/10 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -139,7 +139,7 @@ export function NewPostInput({ className = "", parentId }: NewPostInputProps) {
             <Button 
               type="submit"
               size="sm" 
-              className="rounded-full px-4 bg-primary text-primary-foreground"
+              className="rounded-full px-4 bg-primary text-primary-foreground flex-shrink-0"
               disabled={isPending}
             >
               {isPending ? "投稿中..." : "Post"}
@@ -152,9 +152,10 @@ export function NewPostInput({ className = "", parentId }: NewPostInputProps) {
               <Button 
                 type="button"
                 size="sm" 
-                className="rounded-full px-4 bg-primary text-primary-foreground"
+                className="rounded-full px-2 sm:px-4 bg-primary text-primary-foreground flex-shrink-0 text-sm sm:text-base whitespace-nowrap"
               >
-                Login and Post
+                <span className="hidden sm:inline">Login and Post</span>
+                <span className="sm:hidden">Login</span>
               </Button>
             </SignInButton>
           )}
